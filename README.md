@@ -1,4 +1,4 @@
-# PostHog Feature Flags
+# Hogsync
 
 Type-safe PostHog feature flags with automated sync and local development overrides.
 
@@ -7,10 +7,8 @@ Type-safe PostHog feature flags with automated sync and local development overri
 - 🚀 **Zero dependencies** - Standalone binary created with Bun
 - 🔄 **Bi-directional sync** - Generate TypeScript from JSON, sync to PostHog
 - 🎯 **Type safety** - Full TypeScript support with generated types
-- 🛠️ **Framework agnostic** - Works with Next.js, Vite, Create React App, and vanilla React
 - 🔧 **Local development** - Override flags locally without touching PostHog
 - ⚡ **GitHub Action** - Automated CI/CD integration
-- 📦 **Multiple distribution** - NPM package, standalone binary, or GitHub Action
 
 ## Quick Start
 
@@ -243,7 +241,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Sync PostHog Feature Flags
-        uses: your-username/hogsync@v1
+        uses: hogsync@v1
         with:
           posthog-project-id: ${{ secrets.POSTHOG_PROJECT_ID }}
           posthog-api-token: ${{ secrets.POSTHOG_API_TOKEN }}
@@ -513,13 +511,6 @@ import { createFeatureFlags } from "hogsync/react";
 import { createFeatureFlags } from "hogsync"; // Don't do this
 ```
 
-### PostHog Sync Errors
-
-Check your environment variables:
-
-```bash
-echo $POSTHOG_PROJECT_ID
-echo $POSTHOG_API_TOKEN
 ```
 
 ## License

@@ -13,7 +13,7 @@ const version = '1.0.0';
 
 function showHelp() {
   console.log(`
-HogSync - PostHog Feature Flags CLI v${version}
+HogSync 
 
 USAGE:
   hogsync <command> [options]

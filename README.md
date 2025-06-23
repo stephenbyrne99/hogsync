@@ -4,7 +4,6 @@ Type-safe PostHog feature flags with automated sync and local development overri
 
 ## Features
 
-- 🚀 **Zero dependencies** - Standalone binary created with Bun
 - 🔄 **Bi-directional sync** - Generate TypeScript from JSON, sync to PostHog
 - 🎯 **Type safety** - Full TypeScript support with generated types
 - 🔧 **Local development** - Override flags locally without touching PostHog
@@ -285,7 +284,7 @@ jobs:
       # Sync to PostHog only on main branch
       - name: Sync to PostHog
         if: github.ref == 'refs/heads/main'
-        uses: your-username/hogsync@v1
+        uses: hogsync@v1
         with:
           posthog-project-id: ${{ secrets.POSTHOG_PROJECT_ID }}
           posthog-api-token: ${{ secrets.POSTHOG_API_TOKEN }}

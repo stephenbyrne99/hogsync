@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    /* ---------- language & runtime ---------- */
+    "target": "ES2022", // modern JS features, async-await, etc.
+    "lib": ["ES2023", "DOM"], // latest JS features including Array.fromAsync + DOM for React hooks
+    "module": "NodeNext", // native ESM in Node ≥ 18
+    "moduleResolution": "NodeNext",
+    "types": ["bun-types"], // global Bun types
+    "jsx": "react", // enable JSX support
+
+    /* ---------- safety & DX ---------- */
+    "strict": true, // all strict-mode checks
+    "skipLibCheck": true, // faster builds, skip .d.ts sanity
+    "forceConsistentCasingInFileNames": true,
+
+    /* ---------- build output ---------- */
+    "rootDir": ".", // root is the package directory to include scripts
+    "outDir": "dist", // compiled JS + types go here
+    "declaration": true, // emit *.d.ts alongside JS
+    "declarationMap": true, // map .d.ts → .ts for IDEs
+    "sourceMap": true, // let debuggers point at TS
+
+    /* ---------- interop niceties ---------- */
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true // so you can `import foo from './bar.json'` if needed
+  },
+
+  /* ---------- project structure ---------- */
+  "include": [
+    "src/**/*",
+    "src/generated/**/*", // the code-gen output
+    "scripts/generate-feature-flags.ts" // the generator itself (ts-node)
+  ],
+  "exclude": ["dist", "node_modules"]
+}

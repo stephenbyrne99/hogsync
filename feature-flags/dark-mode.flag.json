@@ -1,0 +1,16 @@
+{
+  "key": "dark-mode",
+  "name": "Dark mode (mobile app)",
+  "active": false,
+  "filters": {
+    "groups": [
+      { "rollout_percentage": 10 },
+      {
+        "properties": [{ "key": "email", "value": "@posthog.com", "type": "person" }]
+      }
+    ]
+  },
+  "ensure_experience_continues": true,
+  "variants": [],
+  "description": "Gradual rollout of the new dark theme"
+}

@@ -1,0 +1,29 @@
+// Create React App usage example
+import { useFeatureFlagEnabled as usePostHogFeatureFlagEnabled } from "posthog-js/react";
+import { LocalFeatureFlags } from "hogsync/feature-flags";
+import { createCRAFeatureFlags } from "hogsync/react";
+
+// Create CRA-optimized hooks
+const {
+  useFeatureFlagEnabled,
+  getLocalFeatureFlagConfig,
+} = createCRAFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags);
+
+// Works with CRA's process.env
+export function App() {
+  const isDarkModeEnabled = useFeatureFlagEnabled('dark-mode');
+  const isAiChatEnabled = useFeatureFlagEnabled('ai-chat');
+  
+  // Get flag configuration for UI display
+  const darkModeConfig = getLocalFeatureFlagConfig('dark-mode');
+  
+  return (
+    <div className="App">
+      <header className={isDarkModeEnabled ? 'dark-header' : 'light-header'}>
+        <h1>Create React App</h1>
+        <p>Dark mode: {darkModeConfig?.name}</p>
+      </header>
+      {isAiChatEnabled && <AiChatSidebar />}
+    </div>
+  );
+}

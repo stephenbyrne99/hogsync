@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+          
+      - name: Install dependencies
+        run: bun install
+        
+      - name: Type check
+        run: bun run typecheck
+        
+      - name: Lint and format check
+        run: bun run check
+        
+      - name: Run tests
+        run: bun test
+        
+      - name: Build
+        run: bun run build
+        
+      - name: Build binary
+        run: bun run build:binary
+        
+      - name: Test CLI binary
+        run: ./bin/hogsync --help

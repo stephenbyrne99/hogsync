@@ -1,0 +1,97 @@
+name: 'HogSync - PostHog Feature Flags'
+description: 'Sync feature flags to PostHog and generate TypeScript types'
+author: 'Stephen Byrne'
+
+inputs:
+  config-file:
+    description: 'Path to configuration file'
+    required: false
+    default: 'hogsync.config.js'
+  
+  flags-dir:
+    description: 'Directory containing feature flag JSON files'
+    required: false
+    default: 'feature-flags'
+  
+  output-file:
+    description: 'Output file for generated TypeScript'
+    required: false
+    default: 'src/generated/feature-flags.ts'
+  
+  posthog-host:
+    description: 'PostHog host URL'
+    required: false
+    default: 'https://app.posthog.com'
+  
+  posthog-project-id:
+    description: 'PostHog project ID'
+    required: true
+  
+  posthog-api-token:
+    description: 'PostHog API token'
+    required: true
+  
+  sync-only:
+    description: 'Only sync to PostHog, skip TypeScript generation'
+    required: false
+    default: 'false'
+  
+  generate-only:
+    description: 'Only generate TypeScript, skip PostHog sync'
+    required: false
+    default: 'false'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Bun
+      uses: oven-sh/setup-bun@v1
+      with:
+        bun-version: latest
+    
+    - name: Install dependencies
+      shell: bash
+      run: |
+        cd ${{ github.action_path }}
+        bun install
+    
+    - name: Build binary
+      shell: bash
+      run: |
+        cd ${{ github.action_path }}
+        bun run build:binary
+    
+    - name: Create config file
+      shell: bash
+      run: |
+        cat > hogsync.config.js << 'EOF'
+        module.exports = {
+          flagsDir: '${{ inputs.flags-dir }}',
+          outputFile: '${{ inputs.output-file }}',
+          posthog: {
+            host: '${{ inputs.posthog-host }}',
+            projectId: '${{ inputs.posthog-project-id }}',
+            apiToken: '${{ inputs.posthog-api-token }}',
+          },
+          generation: {
+            includeLocalConfigs: true,
+            namingConvention: 'snake_case',
+          }
+        };
+        EOF
+    
+    - name: Sync flags to PostHog
+      if: inputs.generate-only != 'true'
+      shell: bash
+      run: |
+        ${{ github.action_path }}/bin/hogsync sync --config hogsync.config.js
+    
+    - name: Generate TypeScript
+      if: inputs.sync-only != 'true'
+      shell: bash
+      run: |
+        ${{ github.action_path }}/bin/hogsync generate --config hogsync.config.js
+
+branding:
+  icon: 'flag'
+  color: 'blue'

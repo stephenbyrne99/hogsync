@@ -1,0 +1,30 @@
+// Next.js usage example
+import { useFeatureFlagEnabled as usePostHogFeatureFlagEnabled } from "posthog-js/react";
+import { LocalFeatureFlags } from "hogsync/feature-flags";
+import { createNextJSFeatureFlags } from "hogsync/react";
+
+// Create Next.js-optimized hooks
+const {
+  useFeatureFlagEnabled,
+  getLocalFeatureFlagConfig,
+  LocalFeatureFlags: flags,
+} = createNextJSFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags);
+
+// Works in both pages/ and app/ directory
+export function HomePage() {
+  const isDarkModeEnabled = useFeatureFlagEnabled('dark-mode');
+  const isAiChatEnabled = useFeatureFlagEnabled('ai-chat');
+  
+  if (isDarkModeEnabled) {
+    // This will use local config in development,
+    // PostHog in production
+    return <DarkLayout />;
+  }
+  
+  return (
+    <div>
+      <h1>Welcome</h1>
+      {isAiChatEnabled && <AiChatWidget />}
+    </div>
+  );
+}

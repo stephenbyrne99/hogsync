@@ -1,0 +1,44 @@
+// Universal usage (auto-detects framework)
+import { useFeatureFlagEnabled as usePostHogFeatureFlagEnabled } from "posthog-js/react";
+import { LocalFeatureFlags } from "hogsync/feature-flags";
+import { createFeatureFlags } from "hogsync/react";
+
+const {
+  useFeatureFlagEnabled,
+  getLocalFeatureFlagConfig,
+} = createFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags);
+
+// Next.js specific
+import { createNextJSFeatureFlags } from "hogsync/react";
+const nextjsHooks = createNextJSFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags);
+
+// Vite specific  
+import { createViteFeatureFlags } from "hogsync/react";
+const viteHooks = createViteFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags);
+
+// Create React App specific
+import { createCRAFeatureFlags } from "hogsync/react";
+const craHooks = createCRAFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags);
+
+// Manual override (useful for testing or edge cases)
+const manualHooks = createFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags, {
+  isDevelopment: true, // Force development mode
+  debug: false, // Disable debug logging
+});
+
+// Use in your components
+export function MyComponent() {
+  const isDarkModeEnabled = useFeatureFlagEnabled('dark-mode');
+  const isAiChatEnabled = useFeatureFlagEnabled('ai-chat');
+  
+  const darkModeConfig = getLocalFeatureFlagConfig('dark-mode');
+  
+  return (
+    <div>
+      {isDarkModeEnabled && <DarkModeComponent />}
+      {isAiChatEnabled && <AiChatComponent />}
+      
+      <p>Dark mode config: {darkModeConfig?.name}</p>
+    </div>
+  );
+}

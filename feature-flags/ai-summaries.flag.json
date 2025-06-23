@@ -1,0 +1,10 @@
+{
+  "key": "ai-summaries",
+  "name": "AI Summaries",
+  "active": true,
+  "filters": {
+    "groups": [{ "rollout_percentage": 100 }]
+  },
+  "description": "Boolean flag to gate the AI-generated summary feature. 100 % rollout when enabled.",
+  "ensure_experience_continues": true
+}

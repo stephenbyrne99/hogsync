@@ -1,5 +1,7 @@
 # Hogsync
 
+NOTE: Unofficial package with no association to PostHog team.
+
 Type-safe PostHog feature flags with automated sync and local development overrides.
 
 ## Features

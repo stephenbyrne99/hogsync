@@ -16,8 +16,9 @@ export type { FeatureFlag, LocalFeatureFlagConfig };
  */
 function detectDevelopmentMode(): boolean {
   // Vite
-  if (typeof import.meta !== 'undefined' && import.meta.env) {
-    return import.meta.env.DEV === 'true' || import.meta.env.MODE === 'development';
+  if (typeof globalThis !== 'undefined' && (globalThis as any).import?.meta?.env) {
+    const env = (globalThis as any).import.meta.env;
+    return env.DEV === 'true' || env.MODE === 'development';
   }
 
   // Next.js (client-side)
@@ -90,7 +91,7 @@ export function createUseFeatureFlagEnabled(
  * Get information about the current framework/environment
  */
 function getFrameworkInfo(): string {
-  if (typeof import.meta !== 'undefined' && import.meta.env) {
+  if (typeof globalThis !== 'undefined' && (globalThis as any).import?.meta?.env) {
     return 'vite';
   }
   if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_NODE_ENV) {
@@ -176,9 +177,10 @@ export function createViteFeatureFlags(
 ) {
   return createFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags, {
     isDevelopment:
-      typeof import.meta !== 'undefined' &&
-      import.meta.env &&
-      (import.meta.env.DEV === 'true' || import.meta.env.MODE === 'development'),
+      typeof globalThis !== 'undefined' &&
+      (globalThis as any).import?.meta?.env &&
+      ((globalThis as any).import.meta.env.DEV === 'true' ||
+        (globalThis as any).import.meta.env.MODE === 'development'),
     debug: options.debug,
   });
 }

@@ -50,7 +50,10 @@ export async function loadConfig(configPath: string): Promise<Config> {
       },
     };
   } catch (error) {
-    console.error(`❌ Error loading config file ${configPath}:`, error.message);
+    console.error(
+      `❌ Error loading config file ${configPath}:`,
+      error instanceof Error ? error.message : String(error)
+    );
     console.log('Using default configuration');
     return defaultConfig;
   }

@@ -127,7 +127,10 @@ async function handleValidate() {
         hasErrors = true;
       }
     } catch (error) {
-      console.error(`❌ ${file}: Invalid JSON -`, error.message);
+      console.error(
+        `❌ ${file}: Invalid JSON -`,
+        error instanceof Error ? error.message : String(error)
+      );
       hasErrors = true;
     }
   }

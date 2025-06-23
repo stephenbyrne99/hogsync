@@ -24,7 +24,10 @@ export async function generateFlags(config: Config): Promise<void> {
       keys.push(json.key);
       flagConfigs.push(json);
     } catch (error) {
-      console.error(`❌ Error parsing ${file}:`, error.message);
+      console.error(
+        `❌ Error parsing ${file}:`,
+        error instanceof Error ? error.message : String(error)
+      );
     }
   }
 

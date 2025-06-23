@@ -36,7 +36,7 @@ export async function syncFlags(config: Config): Promise<void> {
 
       console.log(`\nProcessing flag: ${flagData.key}`);
 
-      const existingFlag = allFlags.find((f) => f.key === flagData.key);
+      const existingFlag = allFlags.find((f: any) => f.key === flagData.key);
 
       if (existingFlag) {
         console.log(`Found existing flag: ${flagData.key} (ID: ${existingFlag.id})`);
@@ -48,7 +48,10 @@ export async function syncFlags(config: Config): Promise<void> {
         console.log(`✓ Created flag: ${flagData.key} (ID: ${result.id})`);
       }
     } catch (error) {
-      console.error(`❌ Error processing ${file}:`, error.message);
+      console.error(
+        `❌ Error processing ${file}:`,
+        error instanceof Error ? error.message : String(error)
+      );
       process.exit(1);
     }
   }

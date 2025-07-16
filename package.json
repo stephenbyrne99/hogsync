@@ -39,6 +39,10 @@
   ],
   "author": "Stephen Byrne",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stephenbyrne99/hogsync.git"
+  },
   "files": [
     "dist/",
     "bin/",

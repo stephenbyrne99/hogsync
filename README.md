@@ -1,7 +1,5 @@
 # Hogsync
 
-NOTE: Unofficial package with no association to PostHog team.
-
 Type-safe PostHog feature flags with automated sync and local development overrides.
 
 ## Features
@@ -489,6 +487,10 @@ import { createFeatureFlags } from "hogsync/react";
 // This might cause issues in non-React projects
 import { createFeatureFlags } from "hogsync"; // Don't do this
 ```
+
+## Disclaimer
+
+I have no association or affiliation with PostHog, and was just using this internally to manage my own feature flags.
 
 ## License
 

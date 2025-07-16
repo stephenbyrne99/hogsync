@@ -30,14 +30,14 @@ jobs:
       - name: Lint and format check
         run: bun run check
         
-      - name: Run tests
-        run: bun test
-        
       - name: Build
         run: bun run build
         
       - name: Build binary
         run: bun run build:binary
+        
+      - name: Run tests
+        run: bun test
         
       - name: Setup Node.js for npm
         uses: actions/setup-node@v4

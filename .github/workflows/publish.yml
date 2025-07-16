@@ -3,7 +3,7 @@ name: Publish
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   publish:
@@ -11,46 +11,47 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
-          
+
       - name: Install dependencies
         run: bun install
-        
+
       - name: Type check
         run: bun run typecheck
-        
+
       - name: Lint and format check
         run: bun run check
-        
+
       - name: Build
         run: bun run build
-        
+
       - name: Build binary
         run: bun run build:binary
-        
+
       - name: Run tests
         run: bun test
-        
+
       - name: Setup Node.js for npm
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          registry-url: 'https://registry.npmjs.org'
-          
+          node-version: "18"
+          registry-url: "https://registry.npmjs.org"
+
       - name: Publish to npm
         run: |
           if [[ "${{ github.ref_name }}" == *"beta"* || "${{ github.ref_name }}" == *"alpha"* || "${{ github.ref_name }}" == *"rc"* ]]; then
-            npm publish --provenance --access public --tag beta
+            npm publish --tag beta --no-git-signature
           else
             npm publish --provenance --access public
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+

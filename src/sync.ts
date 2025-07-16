@@ -2,6 +2,33 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Config, FlagConfig } from './types';
 
+/**
+ * Synchronizes local feature flag JSON files with PostHog.
+ *
+ * @param config - Configuration object containing PostHog credentials and flags directory
+ * @returns Promise that resolves when synchronization is complete
+ *
+ * @example
+ * ```typescript
+ * const config = {
+ *   flagsDir: 'feature-flags',
+ *   posthog: {
+ *     host: 'https://app.posthog.com',
+ *     projectId: 'your-project-id',
+ *     apiToken: 'your-api-token'
+ *   }
+ * };
+ * await syncFlags(config);
+ * ```
+ *
+ * @remarks
+ * - Requires PostHog project ID and API token to be configured
+ * - Creates new flags if they don't exist in PostHog
+ * - Updates existing flags with local changes
+ * - Preserves flag keys but updates all other properties
+ * - Exits with code 1 on any error to ensure CI/CD pipeline failures are caught
+ * - Caches all existing flags to minimize API calls
+ */
 export async function syncFlags(config: Config): Promise<void> {
   const { host, projectId, apiToken } = config.posthog;
 
@@ -61,6 +88,17 @@ export async function syncFlags(config: Config): Promise<void> {
   console.log('\n✓ Feature flags sync completed successfully');
 }
 
+/**
+ * Fetches all feature flags from PostHog for the given project.
+ *
+ * @param host - PostHog host URL
+ * @param projectId - PostHog project ID
+ * @param apiToken - PostHog API token
+ * @returns Promise that resolves to array of feature flag objects
+ *
+ * @internal
+ * This function is used internally by syncFlags to cache existing flags.
+ */
 async function getAllFeatureFlags(host: string, projectId: string, apiToken: string) {
   const url = `${host}/api/projects/${projectId}/feature_flags/`;
 
@@ -82,6 +120,18 @@ async function getAllFeatureFlags(host: string, projectId: string, apiToken: str
   return data.results;
 }
 
+/**
+ * Creates a new feature flag in PostHog.
+ *
+ * @param host - PostHog host URL
+ * @param projectId - PostHog project ID
+ * @param apiToken - PostHog API token
+ * @param flagData - Feature flag configuration data
+ * @returns Promise that resolves to the created flag object
+ *
+ * @internal
+ * This function is used internally by syncFlags to create new flags.
+ */
 async function createFeatureFlag(
   host: string,
   projectId: string,
@@ -115,6 +165,19 @@ async function createFeatureFlag(
   return response.json();
 }
 
+/**
+ * Updates an existing feature flag in PostHog.
+ *
+ * @param host - PostHog host URL
+ * @param projectId - PostHog project ID
+ * @param apiToken - PostHog API token
+ * @param flagId - PostHog flag ID to update
+ * @param flagData - Feature flag configuration data
+ * @returns Promise that resolves to the updated flag object
+ *
+ * @internal
+ * This function is used internally by syncFlags to update existing flags.
+ */
 async function updateFeatureFlag(
   host: string,
   projectId: string,

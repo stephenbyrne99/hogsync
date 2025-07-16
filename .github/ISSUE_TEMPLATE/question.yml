@@ -1,0 +1,122 @@
+name: Question
+description: Ask a question about Hogsync usage or functionality
+title: "[Question]: "
+labels: ["question", "needs-triage"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have a question about Hogsync? We're here to help! Please provide as much context as possible.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-flight checklist
+      description: Please check the following before asking your question
+      options:
+        - label: I have searched existing issues and discussions
+          required: true
+        - label: I have read the [documentation](https://github.com/your-username/hogsync#readme)
+          required: true
+        - label: I have checked the [troubleshooting section](https://github.com/your-username/hogsync#troubleshooting)
+          required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: What would you like to know?
+      placeholder: Ask your question here...
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Provide context about what you're trying to achieve
+      placeholder: |
+        I'm trying to...
+        My goal is to...
+        I want to understand...
+    validations:
+      required: true
+
+  - type: textarea
+    id: attempted
+    attributes:
+      label: What I've Tried
+      description: What have you already tried or researched?
+      placeholder: |
+        I tried...
+        I looked at...
+        I searched for...
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Question Category
+      description: What category does your question fall into?
+      options:
+        - Setup and Configuration
+        - CLI Usage
+        - React Integration
+        - PostHog Integration
+        - GitHub Actions
+        - TypeScript Generation
+        - Troubleshooting
+        - Best Practices
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Hogsync Version
+      description: What version of Hogsync are you using?
+      placeholder: "1.0.0"
+
+  - type: dropdown
+    id: framework
+    attributes:
+      label: Framework (if applicable)
+      description: What framework are you using?
+      options:
+        - Next.js
+        - Vite
+        - Create React App
+        - Other React setup
+        - Not using React
+        - Other
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Configuration (if applicable)
+      description: Your hogsync.config.js file (remove sensitive information)
+      placeholder: |
+        module.exports = {
+          flagsDir: 'feature-flags',
+          outputFile: 'src/generated/feature-flags.ts',
+          // ... rest of config
+        };
+      render: javascript
+
+  - type: textarea
+    id: code
+    attributes:
+      label: Relevant Code (if applicable)
+      description: Any relevant code snippets
+      placeholder: |
+        // Your code here
+      render: javascript
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Information
+      description: Any other information that might be helpful
+      placeholder: Any additional context...
+

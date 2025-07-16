@@ -2,6 +2,30 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Config, FlagConfig } from './types';
 
+/**
+ * Generates TypeScript constants and types from feature flag JSON files.
+ *
+ * @param config - Configuration object containing flags directory, output file, and generation options
+ * @returns Promise that resolves when generation is complete
+ *
+ * @example
+ * ```typescript
+ * const config = {
+ *   flagsDir: 'feature-flags',
+ *   outputFile: 'src/generated/feature-flags.ts',
+ *   generation: { namingConvention: 'snake_case' }
+ * };
+ * await generateFlags(config);
+ * ```
+ *
+ * @remarks
+ * - Scans the flags directory for *.json files
+ * - Validates each flag file has required fields (key, name, active)
+ * - Generates type-safe constants with configurable naming conventions
+ * - Creates local development configurations if enabled
+ * - Automatically creates output directory if it doesn't exist
+ * - Exits with code 1 if flags directory doesn't exist
+ */
 export async function generateFlags(config: Config): Promise<void> {
   if (!existsSync(config.flagsDir)) {
     console.error(`❌ Flags directory not found: ${config.flagsDir}`);
@@ -20,14 +44,29 @@ export async function generateFlags(config: Config): Promise<void> {
 
   for (const file of files) {
     try {
-      const json: FlagConfig = JSON.parse(readFileSync(join(config.flagsDir, file), 'utf8'));
+      const content = readFileSync(join(config.flagsDir, file), 'utf8');
+      const json: FlagConfig = JSON.parse(content);
+
+      // Validate required fields
+      if (!json.key || !json.name || json.active === undefined) {
+        console.error(`❌ ${file}: missing required field (key, name, or active)`);
+        continue;
+      }
+
       keys.push(json.key);
       flagConfigs.push(json);
     } catch (error) {
-      console.error(
-        `❌ Error parsing ${file}:`,
-        error instanceof Error ? error.message : String(error)
-      );
+      if (
+        error instanceof Error &&
+        (error.message.includes('EACCES') || (error as NodeJS.ErrnoException).code === 'EACCES')
+      ) {
+        console.error(`❌ Error reading ${file}: ${error.message}`);
+      } else {
+        console.error(
+          `❌ Error parsing ${file}:`,
+          error instanceof Error ? error.message : String(error)
+        );
+      }
     }
   }
 
@@ -43,6 +82,17 @@ export async function generateFlags(config: Config): Promise<void> {
   console.log(`✓ Generated ${config.outputFile} (${keys.length} flags)`);
 }
 
+/**
+ * Generates the TypeScript content for feature flags constants and types.
+ *
+ * @param keys - Array of feature flag keys
+ * @param flagConfigs - Array of complete flag configuration objects
+ * @param config - Configuration object with generation options
+ * @returns Generated TypeScript code as a string
+ *
+ * @internal
+ * This function is used internally by generateFlags and handles the actual code generation.
+ */
 function generateTypeScriptContent(
   keys: string[],
   flagConfigs: FlagConfig[],
@@ -51,6 +101,9 @@ function generateTypeScriptContent(
   const convention = config.generation?.namingConvention || 'snake_case';
 
   const formatConstantName = (key: string): string => {
+    if (!key || typeof key !== 'string') {
+      throw new Error('Invalid key provided to formatConstantName');
+    }
     switch (convention) {
       case 'camelCase':
         return key.replace(/[-\s]/g, '').replace(/^\w/, (c) => c.toLowerCase());

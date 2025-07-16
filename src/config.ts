@@ -1,6 +1,24 @@
 import { existsSync } from 'node:fs';
 import type { Config } from './types';
 
+/**
+ * Loads and merges configuration from a config file with default values and environment variables.
+ *
+ * @param configPath - Path to the configuration file (supports both CommonJS and ES modules)
+ * @returns Promise that resolves to the merged configuration object
+ *
+ * @example
+ * ```typescript
+ * const config = await loadConfig('hogsync.config.js');
+ * console.log(config.flagsDir); // 'feature-flags'
+ * ```
+ *
+ * @remarks
+ * - If the config file doesn't exist, returns default configuration
+ * - Environment variables (POSTHOG_HOST, POSTHOG_PROJECT_ID, POSTHOG_API_TOKEN) override defaults
+ * - User config values override both defaults and environment variables
+ * - Supports both CommonJS (.js) and ES module (.mjs) config files
+ */
 export async function loadConfig(configPath: string): Promise<Config> {
   const defaultConfig: Config = {
     flagsDir: 'feature-flags',
@@ -28,8 +46,9 @@ export async function loadConfig(configPath: string): Promise<Config> {
     let userConfig: Partial<Config>;
     if (configPath.endsWith('.js')) {
       // For CommonJS modules
-      delete require.cache[require.resolve(`${process.cwd()}/${configPath}`)];
-      userConfig = require(`${process.cwd()}/${configPath}`) as Partial<Config>;
+      const fullPath = configPath.startsWith('/') ? configPath : `${process.cwd()}/${configPath}`;
+      delete require.cache[require.resolve(fullPath)];
+      userConfig = require(fullPath) as Partial<Config>;
     } else {
       // For ES modules
       const configUrl = `file://${process.cwd()}/${configPath}`;
@@ -37,6 +56,11 @@ export async function loadConfig(configPath: string): Promise<Config> {
         default?: Partial<Config>;
       } & Partial<Config>;
       userConfig = importedModule.default || importedModule;
+    }
+
+    // Validate that userConfig is an object
+    if (typeof userConfig !== 'object' || userConfig === null) {
+      throw new Error('Config file must export an object');
     }
 
     return {
@@ -56,7 +80,6 @@ export async function loadConfig(configPath: string): Promise<Config> {
       `❌ Error loading config file ${configPath}:`,
       error instanceof Error ? error.message : String(error)
     );
-    console.log('Using default configuration');
-    return defaultConfig;
+    throw error;
   }
 }

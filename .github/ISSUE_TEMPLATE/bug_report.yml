@@ -1,0 +1,150 @@
+name: Bug Report
+description: Report a bug or issue with Hogsync
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the information below to help us diagnose and fix the issue.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-flight checklist
+      description: Please check the following before submitting your bug report
+      options:
+        - label: I have searched existing issues to ensure this bug hasn't been reported before
+          required: true
+        - label: I have read the [documentation](https://github.com/your-username/hogsync#readme)
+          required: true
+        - label: I am using the latest version of Hogsync
+          required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is
+      placeholder: Describe the bug...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Run command '...'
+        2. Create file '...'
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: A clear and concise description of what you expected to happen
+      placeholder: What should have happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: A clear and concise description of what actually happened
+      placeholder: What actually happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error Logs
+      description: If applicable, add error logs or console output
+      placeholder: Paste error logs here...
+      render: shell
+
+  - type: input
+    id: version
+    attributes:
+      label: Hogsync Version
+      description: What version of Hogsync are you using?
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      description: What operating system are you using?
+      options:
+        - macOS
+        - Linux
+        - Windows
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: node-version
+    attributes:
+      label: Node.js Version
+      description: What version of Node.js are you using?
+      placeholder: "18.0.0"
+    validations:
+      required: true
+
+  - type: input
+    id: bun-version
+    attributes:
+      label: Bun Version (if applicable)
+      description: What version of Bun are you using?
+      placeholder: "1.0.0"
+
+  - type: dropdown
+    id: framework
+    attributes:
+      label: Framework (if applicable)
+      description: What framework are you using with Hogsync?
+      options:
+        - Next.js
+        - Vite
+        - Create React App
+        - Other React setup
+        - Not using React
+        - Other
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Configuration
+      description: Your hogsync.config.js file (remove sensitive information like API tokens)
+      placeholder: |
+        module.exports = {
+          flagsDir: 'feature-flags',
+          outputFile: 'src/generated/feature-flags.ts',
+          // ... rest of config
+        };
+      render: javascript
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here
+      placeholder: Any additional information that might be helpful...
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      description: Would you be willing to contribute a fix for this issue?
+      options:
+        - label: I would be willing to submit a PR to fix this issue
+

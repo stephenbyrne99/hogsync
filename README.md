@@ -13,23 +13,10 @@ Type-safe PostHog feature flags with automated sync and local development overri
 
 ## Quick Start
 
-### Installation
-
-```bash
-# As a dev dependency
-npm install --save-dev hogsync 
-
-# Or install globally
-npm install -g hogsync
-
-# Or use without installation
-npx hogsync init
-```
-
 ### Initialize Configuration
 
 ```bash
-hogsync init
+npx hogsync init
 ```
 
 This creates a `hogsync.config.js` file:
@@ -150,6 +137,7 @@ export function MyComponent() {
 ```
 
 **Supported frameworks** (auto-detected):
+
 - **Next.js** - Detects `process.env.NODE_ENV` and `NEXT_PUBLIC_NODE_ENV`
 - **Vite** - Detects `import.meta.env.DEV` and `import.meta.env.MODE`
 - **Create React App** - Detects `process.env.NODE_ENV`
@@ -218,7 +206,7 @@ jobs:
       # Validate flags first
       - name: Validate Feature Flags
         uses: your-username/hogsync@v1
-        with:
+        wit:
           posthog-project-id: ${{ secrets.POSTHOG_PROJECT_ID }}
           posthog-api-token: ${{ secrets.POSTHOG_API_TOKEN }}
           generate-only: 'true'
@@ -317,6 +305,7 @@ The hook automatically detects your environment and shows debug information:
 ```
 
 **Framework Detection**:
+
 - `vite` - Detected via `import.meta.env`
 - `next.js` - Detected via `NEXT_PUBLIC_NODE_ENV`
 - `create-react-app` - Detected via `REACT_APP_*` env vars
@@ -337,6 +326,28 @@ Add to your `package.json`:
   }
 }
 ```
+
+### 3. Development with Auto-Updates
+
+For automatic flag generation during development, set up your scripts to regenerate flags before starting your dev server:
+
+```json
+{
+  "scripts": {
+    "dev": "bun run flags:generate && next dev --port 3001",
+    "build": "bun run flags:generate && next build",
+    "flags:generate": "hogsync generate",
+    "flags:sync": "hogsync sync",
+    "flags:validate": "hogsync validate",
+    "start": "next start --port 3001",
+    "lint": "next lint",
+    "check-types": "tsc --noEmit",
+    "format": "biome format --write ."
+  }
+}
+```
+
+This ensures your TypeScript types are always up-to-date when you start development or build your project.
 
 ### 3. Git Hooks
 

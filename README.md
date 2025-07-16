@@ -490,8 +490,6 @@ import { createFeatureFlags } from "hogsync/react";
 import { createFeatureFlags } from "hogsync"; // Don't do this
 ```
 
-```
-
 ## License
 
 MIT - see LICENSE file for details.

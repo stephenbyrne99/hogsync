@@ -9,7 +9,7 @@ const OUT_FILE = 'src/generated/feature-flags.ts';
   const keys = [];
   for (const file of files) {
     const json = JSON.parse(
-      await node_fs_1.promises.readFile((0, node_path_1.join)(FLAGS_DIR, file), 'utf8')
+      await node_fs_1.promises.readFile(node_path_1.join(FLAGS_DIR, file), 'utf8')
     );
     keys.push(json.key); // assumes every flag has a `key`
   }

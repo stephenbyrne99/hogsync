@@ -1,11 +1,35 @@
+// PostHog feature flag filter types
+interface FilterGroup {
+  properties?: Array<{
+    key: string;
+    value: string | number | boolean | string[];
+    operator?: string;
+    type?: 'person' | 'event' | 'group';
+  }>;
+  rollout_percentage?: number;
+  variant?: string;
+}
+
+interface FlagVariant {
+  key: string;
+  name?: string;
+  rollout_percentage: number;
+}
+
 export interface FlagConfig {
   key: string;
   name: string;
   active: boolean;
-  filters?: any;
+  filters?: {
+    groups?: FilterGroup[];
+    multivariate?: {
+      variants: FlagVariant[];
+    };
+    payloads?: Record<string, unknown>;
+  };
   description?: string;
   ensure_experience_continues?: boolean;
-  variants?: any[];
+  variants?: FlagVariant[];
 }
 
 export interface Config {

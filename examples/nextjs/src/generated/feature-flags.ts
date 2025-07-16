@@ -5,6 +5,7 @@
 
 export const FeatureFlags = {
   dark_mode: 'dark-mode',
+  notifications: 'notifications',
   ai_chat: 'ai-chat',
   ai_summaries: 'ai-summaries',
   integrations: 'integrations',
@@ -15,12 +16,17 @@ export type FeatureFlag = (typeof FeatureFlags)[keyof typeof FeatureFlags];
 export const LocalFeatureFlags = {
   dark_mode: {
     key: 'dark-mode',
-    name: 'Dark mode (mobile app)',
+    name: 'Dark Mode Toggle',
+    enabled: false,
+  },
+  notifications: {
+    key: 'notifications',
+    name: 'Push Notifications',
     enabled: false,
   },
   ai_chat: {
     key: 'ai-chat',
-    name: 'AI Chat',
+    name: 'AI Chat Widget',
     enabled: false,
   },
   ai_summaries: {

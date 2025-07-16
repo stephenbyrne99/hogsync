@@ -49,10 +49,6 @@
       "types": "./dist/src/index.d.ts",
       "default": "./dist/src/index.js"
     },
-    "./feature-flags": {
-      "types": "./dist/src/generated/feature-flags.d.ts",
-      "default": "./dist/src/generated/feature-flags.js"
-    },
     "./react": {
       "types": "./dist/src/react-hooks.d.ts",
       "default": "./dist/src/react-hooks.js"

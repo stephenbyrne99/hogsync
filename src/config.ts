@@ -25,16 +25,18 @@ export async function loadConfig(configPath: string): Promise<Config> {
 
   try {
     // Use dynamic import for ES modules or require for CommonJS
-    let userConfig: any;
+    let userConfig: Partial<Config>;
     if (configPath.endsWith('.js')) {
       // For CommonJS modules
       delete require.cache[require.resolve(`${process.cwd()}/${configPath}`)];
-      userConfig = require(`${process.cwd()}/${configPath}`);
+      userConfig = require(`${process.cwd()}/${configPath}`) as Partial<Config>;
     } else {
       // For ES modules
       const configUrl = `file://${process.cwd()}/${configPath}`;
-      userConfig = await import(`${configUrl}?t=${Date.now()}`);
-      userConfig = userConfig.default || userConfig;
+      const importedModule = (await import(`${configUrl}?t=${Date.now()}`)) as {
+        default?: Partial<Config>;
+      } & Partial<Config>;
+      userConfig = importedModule.default || importedModule;
     }
 
     return {

@@ -3,27 +3,40 @@
  * This is an optional utility that requires React and posthog-js/react
  */
 
-import type { FeatureFlag, LocalFeatureFlagConfig } from './generated/feature-flags';
-
 // Type-only imports to avoid runtime dependencies
 type UseFeatureFlagEnabledHook = (flag: string) => boolean | undefined;
 
-// Re-export types for convenience
-export type { FeatureFlag, LocalFeatureFlagConfig };
+// Generic types that users will have in their generated files
+export type FeatureFlag = string;
+export type LocalFeatureFlagConfig = {
+  key: string;
+  name: string;
+  enabled: boolean;
+};
 
 /**
  * Auto-detect development mode across different React frameworks
  */
 function detectDevelopmentMode(): boolean {
   // Vite
-  if (typeof globalThis !== 'undefined' && (globalThis as any).import?.meta?.env) {
-    const env = (globalThis as any).import.meta.env;
+  if (
+    typeof globalThis !== 'undefined' &&
+    (globalThis as unknown as { import?: { meta?: { env?: Record<string, string> } } }).import?.meta
+      ?.env
+  ) {
+    const env = (globalThis as unknown as { import: { meta: { env: Record<string, string> } } })
+      .import.meta.env;
     return env.DEV === 'true' || env.MODE === 'development';
   }
 
-  // Next.js (client-side)
-  if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_NODE_ENV) {
-    return process.env.NEXT_PUBLIC_NODE_ENV === 'development';
+  // Next.js (client-side and server-side)
+  if (
+    typeof process !== 'undefined' &&
+    (process.env.NEXT_PUBLIC_NODE_ENV || process.env.NODE_ENV)
+  ) {
+    return (
+      process.env.NEXT_PUBLIC_NODE_ENV === 'development' || process.env.NODE_ENV === 'development'
+    );
   }
 
   // Node.js environments (Next.js server-side, CRA, etc.)
@@ -61,9 +74,10 @@ export function createUseFeatureFlagEnabled(
   debug = true
 ) {
   return function useFeatureFlagEnabled(flag: FeatureFlag): boolean {
-    const posthogEnabled = usePostHogFeatureFlagEnabled(flag);
-
     const isDevMode = isDevelopment ?? detectDevelopmentMode();
+
+    // Always call the PostHog hook to comply with React rules of hooks
+    const posthogEnabled = usePostHogFeatureFlagEnabled(flag);
 
     if (isDevMode) {
       const flagKey = flag.replace(/-/g, '_') as keyof typeof LocalFeatureFlags;
@@ -76,7 +90,7 @@ export function createUseFeatureFlagEnabled(
           flagKey,
           localConfig,
           enabled: localConfig?.enabled,
-          posthogEnabled,
+          posthogEnabled: posthogEnabled ?? false,
         });
       }
 
@@ -91,7 +105,11 @@ export function createUseFeatureFlagEnabled(
  * Get information about the current framework/environment
  */
 function getFrameworkInfo(): string {
-  if (typeof globalThis !== 'undefined' && (globalThis as any).import?.meta?.env) {
+  if (
+    typeof globalThis !== 'undefined' &&
+    (globalThis as unknown as { import?: { meta?: { env?: Record<string, string> } } }).import?.meta
+      ?.env
+  ) {
     return 'vite';
   }
   if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_NODE_ENV) {

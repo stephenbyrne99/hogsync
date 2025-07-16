@@ -36,7 +36,9 @@ export async function syncFlags(config: Config): Promise<void> {
 
       console.log(`\nProcessing flag: ${flagData.key}`);
 
-      const existingFlag = allFlags.find((f: any) => f.key === flagData.key);
+      const existingFlag = allFlags.find(
+        (f: { key: string; id: string }) => f.key === flagData.key
+      );
 
       if (existingFlag) {
         console.log(`Found existing flag: ${flagData.key} (ID: ${existingFlag.id})`);

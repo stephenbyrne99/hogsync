@@ -1,0 +1,10 @@
+{
+  "key": "integrations",
+  "name": "Integrations",
+  "active": false,
+  "filters": {
+    "groups": [{ "rollout_percentage": 100 }]
+  },
+  "description": "Boolean flag to gate the integrations feature. 100% rollout when enabled.",
+  "ensure_experience_continues": true
+}

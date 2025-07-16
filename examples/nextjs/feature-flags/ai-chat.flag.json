@@ -1,0 +1,10 @@
+{
+  "key": "ai-chat",
+  "name": "AI Chat Widget",
+  "active": false,
+  "filters": {
+    "groups": [{ "rollout_percentage": 100 }]
+  },
+  "description": "Boolean flag to gate the AI chat feature. 100% rollout when enabled.",
+  "ensure_experience_continues": true
+}

@@ -1,14 +1,14 @@
 // Next.js usage example
 import { useFeatureFlagEnabled as usePostHogFeatureFlagEnabled } from "posthog-js/react";
 import { LocalFeatureFlags } from "hogsync/feature-flags";
-import { createNextJSFeatureFlags } from "hogsync/react";
+import { createFeatureFlags } from "hogsync/react";
 
-// Create Next.js-optimized hooks
+// Auto-detects Next.js environment
 const {
   useFeatureFlagEnabled,
   getLocalFeatureFlagConfig,
   LocalFeatureFlags: flags,
-} = createNextJSFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags);
+} = createFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags);
 
 // Works in both pages/ and app/ directory
 export function HomePage() {

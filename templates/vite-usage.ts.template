@@ -1,20 +1,20 @@
 // Vite usage example
 import { useFeatureFlagEnabled as usePostHogFeatureFlagEnabled } from "posthog-js/react";
 import { LocalFeatureFlags } from "hogsync/feature-flags";
-import { createViteFeatureFlags } from "hogsync/react";
+import { createFeatureFlags } from "hogsync/react";
 
-// Create Vite-optimized hooks
+// Create auto-detecting hooks (detects Vite automatically)
 const {
   useFeatureFlagEnabled,
   getLocalFeatureFlagConfig,
-} = createViteFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags);
+} = createFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags);
 
 // Works with Vite's import.meta.env
 export function App() {
   const isDarkModeEnabled = useFeatureFlagEnabled('dark-mode');
   const isAiChatEnabled = useFeatureFlagEnabled('ai-chat');
   
-  // In development, this will log framework detection: 'vite'
+  // In development, this will auto-detect and log framework: 'vite'
   console.log('Feature flags loaded');
   
   return (

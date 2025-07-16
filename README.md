@@ -125,6 +125,8 @@ hogsync sync
 
 ### Universal (Auto-detects framework)
 
+The `createFeatureFlags` function automatically detects your framework and environment:
+
 ```typescript
 import { useFeatureFlagEnabled as usePostHogFeatureFlagEnabled } from "posthog-js/react";
 import { LocalFeatureFlags } from "hogsync/feature-flags";
@@ -147,75 +149,24 @@ export function MyComponent() {
 }
 ```
 
-### Next.js
+**Supported frameworks** (auto-detected):
+- **Next.js** - Detects `process.env.NODE_ENV` and `NEXT_PUBLIC_NODE_ENV`
+- **Vite** - Detects `import.meta.env.DEV` and `import.meta.env.MODE`
+- **Create React App** - Detects `process.env.NODE_ENV`
+- **Browser environments** - Falls back to hostname-based detection
+
+### Manual Configuration
+
+For custom environments or testing:
 
 ```typescript
-import { useFeatureFlagEnabled as usePostHogFeatureFlagEnabled } from "posthog-js/react";
-import { LocalFeatureFlags } from "hogsync/feature-flags";
-import { createNextJSFeatureFlags } from "hogsync/react";
-
-// Works in both pages/ and app/ directory
 const {
   useFeatureFlagEnabled,
   getLocalFeatureFlagConfig,
-} = createNextJSFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags);
-
-export default function HomePage() {
-  const isDarkModeEnabled = useFeatureFlagEnabled('dark-mode');
-  
-  return (
-    <div>
-      <h1>Welcome</h1>
-      {isDarkModeEnabled && <DarkModeLayout />}
-    </div>
-  );
-}
-```
-
-### Vite
-
-```typescript
-import { useFeatureFlagEnabled as usePostHogFeatureFlagEnabled } from "posthog-js/react";
-import { LocalFeatureFlags } from "hogsync/feature-flags";
-import { createViteFeatureFlags } from "hogsync/react";
-
-const {
-  useFeatureFlagEnabled,
-} = createViteFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags);
-
-export function App() {
-  const isDarkModeEnabled = useFeatureFlagEnabled('dark-mode');
-  
-  return (
-    <div className={isDarkModeEnabled ? 'dark' : 'light'}>
-      <h1>Vite + React App</h1>
-    </div>
-  );
-}
-```
-
-### Create React App
-
-```typescript
-import { useFeatureFlagEnabled as usePostHogFeatureFlagEnabled } from "posthog-js/react";
-import { LocalFeatureFlags } from "hogsync/feature-flags";
-import { createCRAFeatureFlags } from "hogsync/react";
-
-const {
-  useFeatureFlagEnabled,
-} = createCRAFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags);
-
-export function App() {
-  const isDarkModeEnabled = useFeatureFlagEnabled('dark-mode');
-  
-  return (
-    <div className="App">
-      <header className={isDarkModeEnabled ? 'dark-header' : 'light-header'}>
-        <h1>Create React App</h1>
-      </header>
-    </div>
-  );
-}
+} = createFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags, {
+  isDevelopment: window.location.hostname.includes('staging'),
+  debug: false, // Disable debug logging
+});
 ```
 
 ## GitHub Action
@@ -365,6 +316,13 @@ The hook automatically detects your environment and shows debug information:
 }
 ```
 
+**Framework Detection**:
+- `vite` - Detected via `import.meta.env`
+- `next.js` - Detected via `NEXT_PUBLIC_NODE_ENV`
+- `create-react-app` - Detected via `REACT_APP_*` env vars
+- `browser` - Fallback for browser environments
+- `unknown` - When framework cannot be determined
+
 ### 2. Package.json Scripts
 
 Add to your `package.json`:
@@ -421,9 +379,16 @@ module.exports = {
 ### Custom Development Detection
 
 ```typescript
+// Override auto-detection for specific environments
 const hooks = createFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags, {
   isDevelopment: window.location.hostname.includes('staging'),
   debug: false, // Disable logging
+});
+
+// Force development mode for testing
+const testHooks = createFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags, {
+  isDevelopment: true, // Always use local flags
+  debug: false
 });
 ```
 
@@ -472,9 +437,10 @@ Remove flags after full rollout:
 Use manual overrides in tests:
 
 ```typescript
+// Always use local flags in tests
 const testHooks = createFeatureFlags(mockPostHogHook, LocalFeatureFlags, {
-  isDevelopment: true, // Always use local flags
-  debug: false
+  isDevelopment: true, // Force local flags
+  debug: false // Disable logging
 });
 ```
 
@@ -494,6 +460,7 @@ If you have existing PostHog feature flags:
 If auto-detection fails, manually specify:
 
 ```typescript
+// Manual override for edge cases
 const hooks = createFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags, {
   isDevelopment: process.env.NODE_ENV === 'development'
 });

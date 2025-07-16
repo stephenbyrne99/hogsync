@@ -122,6 +122,7 @@ export function createGetLocalFeatureFlagConfig(
 
 /**
  * Universal feature flags factory that works with any React setup
+ * Auto-detects the framework and development environment
  * @param usePostHogFeatureFlagEnabled - The PostHog React hook
  * @param LocalFeatureFlags - The generated local feature flags object
  * @param options - Configuration options
@@ -148,53 +149,4 @@ export function createFeatureFlags(
     getLocalFeatureFlagConfig,
     LocalFeatureFlags,
   };
-}
-
-/**
- * Pre-configured hook factory for Next.js projects
- */
-export function createNextJSFeatureFlags(
-  usePostHogFeatureFlagEnabled: UseFeatureFlagEnabledHook,
-  LocalFeatureFlags: Record<string, LocalFeatureFlagConfig>,
-  options: { debug?: boolean } = {}
-) {
-  return createFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags, {
-    isDevelopment:
-      typeof process !== 'undefined' &&
-      (process.env.NODE_ENV === 'development' ||
-        process.env.NEXT_PUBLIC_NODE_ENV === 'development'),
-    debug: options.debug,
-  });
-}
-
-/**
- * Pre-configured hook factory for Vite projects
- */
-export function createViteFeatureFlags(
-  usePostHogFeatureFlagEnabled: UseFeatureFlagEnabledHook,
-  LocalFeatureFlags: Record<string, LocalFeatureFlagConfig>,
-  options: { debug?: boolean } = {}
-) {
-  return createFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags, {
-    isDevelopment:
-      typeof globalThis !== 'undefined' &&
-      (globalThis as any).import?.meta?.env &&
-      ((globalThis as any).import.meta.env.DEV === 'true' ||
-        (globalThis as any).import.meta.env.MODE === 'development'),
-    debug: options.debug,
-  });
-}
-
-/**
- * Pre-configured hook factory for Create React App projects
- */
-export function createCRAFeatureFlags(
-  usePostHogFeatureFlagEnabled: UseFeatureFlagEnabledHook,
-  LocalFeatureFlags: Record<string, LocalFeatureFlagConfig>,
-  options: { debug?: boolean } = {}
-) {
-  return createFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags, {
-    isDevelopment: typeof process !== 'undefined' && process.env.NODE_ENV === 'development',
-    debug: options.debug,
-  });
 }

@@ -3,22 +3,11 @@ import { useFeatureFlagEnabled as usePostHogFeatureFlagEnabled } from "posthog-j
 import { LocalFeatureFlags } from "hogsync/feature-flags";
 import { createFeatureFlags } from "hogsync/react";
 
+// Auto-detects Next.js, Vite, Create React App, and other frameworks
 const {
   useFeatureFlagEnabled,
   getLocalFeatureFlagConfig,
 } = createFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags);
-
-// Next.js specific
-import { createNextJSFeatureFlags } from "hogsync/react";
-const nextjsHooks = createNextJSFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags);
-
-// Vite specific  
-import { createViteFeatureFlags } from "hogsync/react";
-const viteHooks = createViteFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags);
-
-// Create React App specific
-import { createCRAFeatureFlags } from "hogsync/react";
-const craHooks = createCRAFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags);
 
 // Manual override (useful for testing or edge cases)
 const manualHooks = createFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags, {

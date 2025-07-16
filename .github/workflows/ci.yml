@@ -28,14 +28,14 @@ jobs:
       - name: Lint and format check
         run: bun run check
         
-      - name: Run tests
-        run: bun test
-        
       - name: Build
         run: bun run build
         
       - name: Build binary
         run: bun run build:binary
+        
+      - name: Run tests
+        run: bun test
         
       - name: Test CLI binary
         run: ./bin/hogsync --help

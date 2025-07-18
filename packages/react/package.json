@@ -1,6 +1,6 @@
 {
   "name": "@stephen_byrne_/hogsync-react",
-  "version": "1.0.0-alpha.21",
+  "version": "0.0.1",
   "description": "Type-safe PostHog feature flags with automated sync - React hooks",
   "main": "dist/react-hooks.js",
   "types": "dist/react-hooks.d.ts",

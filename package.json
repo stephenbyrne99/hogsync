@@ -1,6 +1,6 @@
 {
   "name": "hogsync",
-  "version": "1.0.0-alpha.16",
+  "version": "1.0.0-alpha.17",
   "description": "Type-safe PostHog feature flags with automated sync",
   "main": "dist/src/index.js",
   "bin": {

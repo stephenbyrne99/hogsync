@@ -5,7 +5,20 @@ on:
     tags: ['v*.*.*']  # every SemVer tag creates a release
 
 jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}
+          generate_release_notes: true
+
   build:
+    needs: create-release
     strategy:
       matrix:
         include:
@@ -69,35 +82,34 @@ jobs:
             sha256sum hogsync-${{ matrix.target }}.zip > hogsync-${{ matrix.target }}.zip.sha256
           fi
 
-      - name: Upload artifacts
+      - name: Upload artifacts to existing release
         uses: softprops/action-gh-release@v2
         with:
           files: |
             hogsync-${{ matrix.target }}.zip
             hogsync-${{ matrix.target }}.zip.sha256
-          draft: false
-          prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}
 
   create-checksums:
-    needs: build
+    needs: [create-release, build]
     runs-on: ubuntu-latest
     
     permissions:
       contents: write  # allows creating and updating releases
     
     steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
+      - name: Download release assets
+        run: |
+          gh release download ${{ github.ref_name }} --pattern "*.sha256"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create combined checksums file
         run: |
-          find artifacts -name "*.sha256" -exec cat {} \; > checksums.txt
+          cat *.sha256 > checksums.txt
           echo "Combined checksums:"
           cat checksums.txt
 
-      - name: Upload combined checksums
+      - name: Upload combined checksums to existing release
         uses: softprops/action-gh-release@v2
         with:
           files: checksums.txt

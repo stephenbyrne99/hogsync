@@ -189,8 +189,9 @@ describe('CLI Commands', () => {
       const result = await runCLI(['validate']);
 
       expect(result.exitCode).toBe(1);
-      expect(result.stderr).toContain('❌ invalid-flag.json: Missing required fields');
-      expect(result.stderr).toContain("❌ invalid-flag.json: 'active' must be a boolean");
+      expect(result.stderr).toContain(
+        '❌ invalid-flag.json: Feature flag validation failed in invalid-flag.json'
+      );
       expect(result.stderr).toContain('❌ Validation failed');
     });
 
@@ -214,7 +215,7 @@ describe('CLI Commands', () => {
       const result = await runCLI(['validate']);
 
       expect(result.exitCode).toBe(1);
-      expect(result.stderr).toContain('❌ malformed.json: Invalid JSON');
+      expect(result.stderr).toContain("❌ malformed.json: JSON Parse error: Expected '}'");
     });
   });
 

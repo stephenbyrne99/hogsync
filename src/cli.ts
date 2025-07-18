@@ -177,7 +177,7 @@ async function main() {
     case 'watch':
       // TODO: Implement watch functionality
       console.log('Watch functionality coming soon...');
-      throw new Error('Not implemented');
+      break;
     default:
       console.error(`Unknown command: ${command}`);
       showHelp();

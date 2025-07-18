@@ -24,7 +24,6 @@ const targets = [
   ['linux', 'x64'],
   ['darwin', 'x64'],
   ['darwin', 'arm64'],
-  ['windows', 'x64'],
 ];
 
 await $`rm -rf dist`;
@@ -62,7 +61,7 @@ for (const [os, arch] of targets) {
 
 // Create the main package that will install the correct binary
 await $`mkdir -p ./dist/${pkg.name}`;
-await $`cp -r ./bin ./dist/${pkg.name}/bin`;
+await $`mkdir -p ./dist/${pkg.name}/bin`;
 await $`cp ./scripts/postinstall.mjs ./dist/${pkg.name}/postinstall.mjs`;
 
 await Bun.file(`./dist/${pkg.name}/package.json`).write(

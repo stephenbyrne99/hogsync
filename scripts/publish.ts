@@ -2,132 +2,159 @@
 
 import { $ } from 'bun';
 
-import pkg from '../package.json';
+const cliPkg = require('../packages/cli/package.json');
+const reactPkg = require('../packages/react/package.json');
 
-const dry = process.argv.includes('--dry');
-const snapshot = process.argv.includes('--snapshot');
+async function main() {
+  const dry = process.argv.includes('--dry');
+  const snapshot = process.argv.includes('--snapshot');
 
-const version = snapshot
-  ? `0.0.0-${new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '')}`
-  : await $`git describe --tags --abbrev=0`
-      .text()
-      .then((x) => x.substring(1).trim())
-      .catch(() => {
-        console.error('tag not found');
-        process.exit(1);
-      });
+  const version = snapshot
+    ? `0.0.0-${new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '')}`
+    : await $`git describe --tags --abbrev=0`
+        .text()
+        .then((x) => x.substring(1).trim())
+        .catch(() => {
+          console.error('tag not found');
+          process.exit(1);
+        });
 
-console.log(`publishing ${version}`);
+  console.log(`publishing ${version}`);
 
-const targets = [
-  ['linux', 'arm64'],
-  ['linux', 'x64'],
-  ['darwin', 'x64'],
-  ['darwin', 'arm64'],
-];
+  const targets = [
+    ['linux', 'arm64'],
+    ['linux', 'x64'],
+    ['darwin', 'x64'],
+    ['darwin', 'arm64'],
+  ];
 
-await $`rm -rf dist`;
+  await $`rm -rf dist packages/*/dist`;
 
-const optionalDependencies: Record<string, string> = {};
-const npmTag = snapshot ? 'snapshot' : 'latest';
+  const optionalDependencies: Record<string, string> = {};
+  const npmTag = snapshot ? 'snapshot' : 'latest';
 
-for (const [os, arch] of targets) {
-  console.log(`building ${os}-${arch}`);
-  const name = `${pkg.name}-${os}-${arch}`;
-  await $`mkdir -p dist/${name}/bin`;
+  // Build and publish platform-specific CLI packages
+  for (const [os, arch] of targets) {
+    console.log(`building ${os}-${arch}`);
+    const name = `${cliPkg.name}-${os}-${arch}`;
+    await $`mkdir -p dist/${name}/bin`;
 
-  // Build the binary for the specific target
-  const binaryName = os === 'windows' ? 'hogsync.exe' : 'hogsync';
-  await $`bun build --define HOGSYNC_VERSION="'${version}'" --compile --minify --target=bun-${os}-${arch} --outfile=dist/${name}/bin/${binaryName} ./src/cli.ts`;
+    // Build the binary for the specific target
+    const binaryName = os === 'windows' ? 'hogsync.exe' : 'hogsync';
+    await $`bun build --define HOGSYNC_VERSION="'${version}'" --compile --minify --target=bun-${os}-${arch} --outfile=dist/${name}/bin/${binaryName} ./packages/cli/src/cli.ts`;
 
-  // Create package.json for the platform-specific package
-  await Bun.file(`dist/${name}/package.json`).write(
+    // Create package.json for the platform-specific package
+    await Bun.file(`dist/${name}/package.json`).write(
+      JSON.stringify(
+        {
+          name,
+          version,
+          os: [os === 'windows' ? 'win32' : os],
+          cpu: [arch],
+        },
+        null,
+        2
+      )
+    );
+
+    // Publish the platform-specific package
+    if (!dry) await $`cd dist/${name} && bun publish --access public --tag ${npmTag}`;
+    optionalDependencies[name] = version;
+  }
+
+  // Build and publish main CLI package
+  console.log('building main CLI package');
+  await $`cd packages/cli && bun run build`;
+  await $`mkdir -p ./dist/${cliPkg.name}`;
+  await $`mkdir -p ./dist/${cliPkg.name}/bin`;
+  await $`mkdir -p ./dist/${cliPkg.name}/dist`;
+  await $`mkdir -p ./dist/${cliPkg.name}/templates`;
+
+  // Create a placeholder binary (will be replaced by postinstall)
+  await $`echo '#!/usr/bin/env node\nconsole.log("Please run: npm install");' > ./dist/${cliPkg.name}/bin/${cliPkg.name}`;
+  await $`chmod +x ./dist/${cliPkg.name}/bin/${cliPkg.name}`;
+
+  await $`cp ./packages/cli/scripts/postinstall.mjs ./dist/${cliPkg.name}/postinstall.mjs`;
+  await $`cp -r ./packages/cli/dist/* ./dist/${cliPkg.name}/dist/`;
+  await $`cp -r ./packages/cli/templates/* ./dist/${cliPkg.name}/templates/`;
+  await $`cp ./action.yml ./dist/${cliPkg.name}/action.yml`;
+
+  await Bun.file(`./dist/${cliPkg.name}/package.json`).write(
     JSON.stringify(
       {
-        name,
+        ...cliPkg,
         version,
-        os: [os === 'windows' ? 'win32' : os],
-        cpu: [arch],
+        optionalDependencies,
+        bin: {
+          [cliPkg.name]: `./bin/${cliPkg.name}`,
+        },
+        scripts: {
+          postinstall: 'node ./postinstall.mjs',
+        },
       },
       null,
       2
     )
   );
 
-  // Publish the platform-specific package
-  if (!dry) await $`cd dist/${name} && bun publish --access public --tag ${npmTag}`;
-  optionalDependencies[name] = version;
-}
+  if (!dry) await $`cd ./dist/${cliPkg.name} && bun publish --access public --tag ${npmTag}`;
 
-// Create the main package that will install the correct binary
-await $`mkdir -p ./dist/${pkg.name}`;
-await $`mkdir -p ./dist/${pkg.name}/bin`;
-await $`cp ./scripts/postinstall.mjs ./dist/${pkg.name}/postinstall.mjs`;
+  // Build and publish React package
+  console.log('building React package');
+  await $`cd packages/react && bun run build`;
+  await $`mkdir -p ./dist/${reactPkg.name}`;
+  await $`cp -r ./packages/react/dist/* ./dist/${reactPkg.name}/`;
 
-await Bun.file(`./dist/${pkg.name}/package.json`).write(
-  JSON.stringify(
-    {
-      name: pkg.name,
-      bin: {
-        [pkg.name]: `./bin/${pkg.name}`,
-      },
-      scripts: {
-        postinstall: 'node ./postinstall.mjs',
-      },
-      version,
-      optionalDependencies,
-      // Include other important fields from original package.json
-      description: pkg.description,
-      keywords: pkg.keywords,
-      author: pkg.author,
-      license: pkg.license,
-      repository: pkg.repository,
-      exports: pkg.exports,
-      peerDependencies: pkg.peerDependencies,
-      peerDependenciesMeta: pkg.peerDependenciesMeta,
-    },
-    null,
-    2
-  )
-);
+  // Create React package.json for publishing
+  const updatedReactPkg = {
+    ...reactPkg,
+    version,
+  };
 
-if (!dry) await $`cd ./dist/${pkg.name} && bun publish --access public --tag ${npmTag}`;
+  await Bun.file(`./dist/${reactPkg.name}/package.json`).write(
+    JSON.stringify(updatedReactPkg, null, 2)
+  );
 
-if (!snapshot) {
-  // Github Release
-  for (const key of Object.keys(optionalDependencies)) {
-    await $`cd dist/${key}/bin && zip -r ../../${key}.zip *`;
+  if (!dry) await $`cd ./dist/${reactPkg.name} && bun publish --access public --tag ${npmTag}`;
+
+  if (!snapshot) {
+    // Github Release
+    for (const key of Object.keys(optionalDependencies)) {
+      await $`cd dist/${key}/bin && zip -r ../../${key}.zip *`;
+    }
+
+    const previous = await fetch(
+      `https://api.github.com/repos/${cliPkg.repository.url.split('/').slice(-2).join('/').replace('.git', '')}/releases/latest`
+    )
+      .then((res) => res.json())
+      .then((data) => data.tag_name)
+      .catch(() => 'v0.0.0'); // fallback if no previous release
+
+    const commits = await fetch(
+      `https://api.github.com/repos/${cliPkg.repository.url.split('/').slice(-2).join('/').replace('.git', '')}/compare/${previous}...HEAD`
+    )
+      .then((res) => res.json())
+      .then((data) => data.commits || [])
+      .catch(() => []);
+
+    const notes = commits
+      .map((commit: { commit: { message: string } }) => `- ${commit.commit.message.split('\n')[0]}`)
+      .filter((x: string) => {
+        const lower = x.toLowerCase();
+        return (
+          !lower.includes('ignore:') &&
+          !lower.includes('chore:') &&
+          !lower.includes('ci:') &&
+          !lower.includes('wip:') &&
+          !lower.includes('docs:') &&
+          !lower.includes('doc:')
+        );
+      })
+      .join('\n');
+
+    if (!dry)
+      await $`gh release create v${version} --title "v${version}" --notes ${notes} ./dist/*.zip`;
   }
-
-  const previous = await fetch(
-    `https://api.github.com/repos/${pkg.repository.url.split('/').slice(-2).join('/').replace('.git', '')}/releases/latest`
-  )
-    .then((res) => res.json())
-    .then((data) => data.tag_name)
-    .catch(() => 'v0.0.0'); // fallback if no previous release
-
-  const commits = await fetch(
-    `https://api.github.com/repos/${pkg.repository.url.split('/').slice(-2).join('/').replace('.git', '')}/compare/${previous}...HEAD`
-  )
-    .then((res) => res.json())
-    .then((data) => data.commits || [])
-    .catch(() => []);
-
-  const notes = commits
-    .map((commit: { commit: { message: string } }) => `- ${commit.commit.message.split('\n')[0]}`)
-    .filter((x: string) => {
-      const lower = x.toLowerCase();
-      return (
-        !lower.includes('ignore:') &&
-        !lower.includes('chore:') &&
-        !lower.includes('ci:') &&
-        !lower.includes('wip:') &&
-        !lower.includes('docs:') &&
-        !lower.includes('doc:')
-      );
-    })
-    .join('\n');
-
-  if (!dry)
-    await $`gh release create v${version} --title "v${version}" --notes ${notes} ./dist/*.zip`;
 }
+
+main().catch(console.error);

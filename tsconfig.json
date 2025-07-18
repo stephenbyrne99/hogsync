@@ -27,10 +27,6 @@
   },
 
   /* ---------- project structure ---------- */
-  "include": [
-    "src/**/*",
-    "src/generated/**/*", // the code-gen output
-    "scripts/generate-feature-flags.ts" // the generator itself (ts-node)
-  ],
-  "exclude": ["dist", "node_modules"]
+  "include": ["packages/*/src/**/*", "scripts/**/*"],
+  "exclude": ["dist", "node_modules", "packages/*/dist"]
 }

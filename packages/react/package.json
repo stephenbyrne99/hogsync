@@ -1,0 +1,44 @@
+{
+  "name": "@hogsync/react",
+  "version": "1.0.0-alpha.21",
+  "description": "Type-safe PostHog feature flags with automated sync - React hooks",
+  "main": "dist/react-hooks.js",
+  "types": "dist/react-hooks.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "posthog",
+    "feature-flags",
+    "typescript",
+    "react",
+    "hooks"
+  ],
+  "author": "Stephen Byrne",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stephenbyrne99/hogsync.git"
+  },
+  "files": [
+    "dist/"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/react-hooks.d.ts",
+      "default": "./dist/react-hooks.js"
+    }
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "posthog-js": ">=1.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "@types/react": "^18.0.0"
+  }
+}

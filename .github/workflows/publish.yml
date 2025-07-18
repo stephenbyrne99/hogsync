@@ -26,7 +26,7 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: 1.2.18
 
       - name: Install GitHub CLI
         run: |
@@ -40,13 +40,17 @@ jobs:
         run: bun run typecheck
 
       - name: Lint and format check
-        run: bun run check
+        run: bun run lint
 
       - name: Build
         run: bun run build
 
       - name: Run tests
         run: bun test
+
+      - name: Setup npm authentication
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
 
       - name: Publish
         run: |
@@ -57,5 +61,4 @@ jobs:
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}
 

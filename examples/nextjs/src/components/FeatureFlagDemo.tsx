@@ -1,6 +1,6 @@
 'use client';
 
-import { createFeatureFlags } from 'hogsync/react';
+import { createFeatureFlags } from '@hogsync/react';
 import { useFeatureFlagEnabled as usePostHogFeatureFlagEnabled } from 'posthog-js/react';
 import { FeatureFlags, LocalFeatureFlags } from '@/generated/feature-flags';
 

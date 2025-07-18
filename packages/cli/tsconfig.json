@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "."
+  },
+  "include": [
+    "src/**/*",
+    "scripts/generate-feature-flags.ts",
+    "scripts/postinstall.mjs",
+    "scripts/sync-feature-flags.js"
+  ],
+  "exclude": ["dist", "node_modules"]
+}

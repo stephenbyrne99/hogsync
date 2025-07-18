@@ -1,0 +1,47 @@
+// Custom/Manual usage example
+import { useFeatureFlagEnabled as usePostHogFeatureFlagEnabled } from "posthog-js/react";
+import { LocalFeatureFlags } from "hogsync/feature-flags";
+import { createFeatureFlags } from "hogsync/react";
+
+// For custom environments or special requirements
+const {
+  useFeatureFlagEnabled,
+  getLocalFeatureFlagConfig,
+} = createFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags, {
+  // Explicitly control development mode
+  isDevelopment: window.location.hostname.includes('staging'), 
+  
+  // Disable debug logging in production
+  debug: process.env.NODE_ENV === 'development',
+});
+
+// Example: Using in a testing environment
+const testingHooks = createFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags, {
+  isDevelopment: true, // Always use local flags in tests
+  debug: false, // No logging during tests
+});
+
+// Example: Environment-specific overrides
+const productionHooks = createFeatureFlags(usePostHogFeatureFlagEnabled, LocalFeatureFlags, {
+  isDevelopment: false, // Always use PostHog in production
+  debug: false,
+});
+
+export function ConfigurableComponent() {
+  const isDarkModeEnabled = useFeatureFlagEnabled('dark-mode');
+  
+  // You can also check the environment detection result
+  const getEnvironmentInfo = () => {
+    if (typeof import.meta !== 'undefined' && import.meta.env) return 'Vite';
+    if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_NODE_ENV) return 'Next.js';
+    if (typeof window !== 'undefined') return 'Browser';
+    return 'Unknown';
+  };
+  
+  return (
+    <div>
+      <p>Environment: {getEnvironmentInfo()}</p>
+      <p>Dark mode: {isDarkModeEnabled ? 'enabled' : 'disabled'}</p>
+    </div>
+  );
+}

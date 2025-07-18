@@ -1,25 +1,20 @@
 {
-  "name": "hogsync",
+  "name": "hogsync-monorepo",
   "version": "1.0.0-alpha.21",
-  "description": "Type-safe PostHog feature flags with automated sync",
-  "main": "dist/src/index.js",
-  "bin": {
-    "hogsync": "./bin/hogsync"
-  },
+  "description": "Type-safe PostHog feature flags with automated sync - Monorepo",
+
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "build": "bun run build:clean && bun run build:tsc && bun run build:cli",
-    "build:clean": "rm -rf dist",
-    "build:tsc": "tsc -p tsconfig.build.json",
-    "build:cli": "bun build src/cli.ts --outdir dist --target node",
-    "build:binary": "bun build src/cli.ts --compile --outfile bin/hogsync",
+    "build": "bun run build:cli && bun run build:react",
+    "build:cli": "cd packages/cli && bun run build",
+    "build:react": "cd packages/react && bun run build",
     "publish:cross-platform": "bun run scripts/publish.ts",
     "publish:cross-platform:dry": "bun run scripts/publish.ts --dry",
     "publish:cross-platform:snapshot": "bun run scripts/publish.ts --snapshot",
-    "prepublishOnly": "bun run build && bun run build:binary",
-    "generate:flags": "bun run scripts/generate-feature-flags.ts",
-    "sync:flags": "bun run scripts/sync-feature-flags.js",
-    "dev": "bun run --watch src/cli.ts",
-    "watch:flags": "bun --watch scripts/generate-feature-flags.ts",
+    "dev": "cd packages/cli && bun run --watch src/cli.ts",
     "lint": "biome lint .",
     "lint:fix": "biome lint --write .",
     "format": "biome format .",
@@ -27,7 +22,9 @@
     "check": "biome check .",
     "check:fix": "biome check --write .",
     "test": "bun test",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "bun run typecheck:cli && bun run typecheck:react",
+    "typecheck:cli": "cd packages/cli && bun run typecheck",
+    "typecheck:react": "cd packages/react && bun run typecheck",
     "prepare": "husky",
     "release:beta": "npm version prerelease --preid=beta && git push --follow-tags origin main",
     "release:rc": "npm version prerelease --preid=rc && git push --follow-tags origin main",
@@ -36,62 +33,12 @@
     "release:minor": "npm version minor && git push --follow-tags origin main",
     "release:major": "npm version major && git push --follow-tags origin main"
   },
-  "publishConfig": {
-    "provenance": false
-  },
-  "keywords": [
-    "posthog",
-    "feature-flags",
-    "typescript",
-    "automation",
-    "cli"
-  ],
   "author": "Stephen Byrne",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/stephenbyrne99/hogsync.git"
   },
-  "files": [
-    "dist/",
-    "bin/",
-    "templates/",
-    "scripts/postinstall.mjs",
-    "action.yml",
-    "README.md",
-    "PUBLISHING.md"
-  ],
-  "exports": {
-    ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./dist/src/index.js"
-    },
-    "./react": {
-      "types": "./dist/src/react-hooks.d.ts",
-      "default": "./dist/src/react-hooks.js"
-    }
-  },
-  "typesVersions": {
-    "*": {
-      "react": [
-        "./dist/src/react-hooks.d.ts"
-      ]
-    }
-  },
-  "peerDependencies": {
-    "react": ">=16.8.0",
-    "posthog-js": ">=1.0.0"
-  },
-  "peerDependenciesMeta": {
-    "react": {
-      "optional": true
-    },
-    "posthog-js": {
-      "optional": true
-    }
-  },
-  "types": "dist/src/index.d.ts",
-  "dependencies": {},
   "devDependencies": {
     "@biomejs/biome": "^2.0.5",
     "@types/bun": "latest",

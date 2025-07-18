@@ -1,0 +1,61 @@
+{
+  "name": "hogsync",
+  "version": "1.0.0-alpha.21",
+  "description": "Type-safe PostHog feature flags with automated sync",
+
+  "main": "dist/src/index.js",
+  "bin": {
+    "hogsync": "./bin/hogsync"
+  },
+  "scripts": {
+    "build": "bun run build:clean && bun run build:tsc && bun run build:cli",
+    "build:clean": "rm -rf dist",
+    "build:tsc": "tsc -p tsconfig.build.json",
+    "build:cli": "bun build src/cli.ts --outdir dist --target node",
+    "build:binary": "bun build src/cli.ts --compile --outfile bin/hogsync",
+    "publish:cross-platform": "bun run scripts/publish.ts",
+    "publish:cross-platform:dry": "bun run scripts/publish.ts --dry",
+    "publish:cross-platform:snapshot": "bun run scripts/publish.ts --snapshot",
+    "prepublishOnly": "bun run build && bun run build:binary",
+    "generate:flags": "bun run scripts/generate-feature-flags.ts",
+    "sync:flags": "bun run scripts/sync-feature-flags.js",
+    "dev": "bun run --watch src/cli.ts",
+    "watch:flags": "bun --watch scripts/generate-feature-flags.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "publishConfig": {
+    "provenance": false
+  },
+  "keywords": [
+    "posthog",
+    "feature-flags",
+    "typescript",
+    "automation",
+    "cli"
+  ],
+  "author": "Stephen Byrne",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stephenbyrne99/hogsync.git"
+  },
+  "files": [
+    "dist/",
+    "bin/",
+    "templates/",
+    "scripts/postinstall.mjs",
+    "action.yml",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    }
+  },
+  "types": "dist/src/index.d.ts",
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}

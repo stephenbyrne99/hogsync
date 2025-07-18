@@ -9,6 +9,35 @@ Type-safe PostHog feature flags with automated sync and local development overri
 - 🔧 **Local development** - Override flags locally without touching PostHog
 - ⚡ **GitHub Action** - Automated CI/CD integration
 
+## Installation
+
+### Quick Install (Recommended)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/stephenbyrne99/hogsync/main/install.sh | bash
+```
+
+### Package Managers
+
+| Method | Command |
+|--------|---------|
+| **Shell Script** | `curl -fsSL https://raw.githubusercontent.com/stephenbyrne99/hogsync/main/install.sh \| bash` |
+| **npm** | `npm install -g hogsync` |
+| **Homebrew** | `brew install stephenbyrne99/tap/hogsync` *(coming soon)* |
+| **Scoop** | `scoop install hogsync` *(coming soon)* |
+| **Arch AUR** | `yay -S hogsync-bin` *(coming soon)* |
+
+### Manual Download
+
+Download the latest binary from [GitHub Releases](https://github.com/stephenbyrne99/hogsync/releases/latest):
+
+- **Linux x64**: `hogsync-linux-x64.zip`
+- **Linux ARM64**: `hogsync-linux-arm64.zip`
+- **macOS x64**: `hogsync-darwin-x64.zip`
+- **macOS ARM64**: `hogsync-darwin-arm64.zip`
+- **Windows x64**: `hogsync-win32-x64.zip`
+- **Windows ARM64**: `hogsync-win32-arm64.zip`
+
 ## Quick Start
 
 ### Initialize Configuration
@@ -157,6 +186,8 @@ const {
 
 ## GitHub Action
 
+> **⚡ Fast Setup**: The GitHub Action now downloads pre-built binaries instead of compiling from source, making it ~10× faster with no dependency installation required.
+
 ### Basic Usage
 
 Create `.github/workflows/feature-flags.yml`:
@@ -179,7 +210,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Sync PostHog Feature Flags
-        uses: hogsync@v1
+        uses: stephenbyrne99/hogsync@v1
         with:
           posthog-project-id: ${{ secrets.POSTHOG_PROJECT_ID }}
           posthog-api-token: ${{ secrets.POSTHOG_API_TOKEN }}
@@ -203,8 +234,8 @@ jobs:
       
       # Validate flags first
       - name: Validate Feature Flags
-        uses: your-username/hogsync@v1
-        wit:
+        uses: stephenbyrne99/hogsync@v1
+        with:
           posthog-project-id: ${{ secrets.POSTHOG_PROJECT_ID }}
           posthog-api-token: ${{ secrets.POSTHOG_API_TOKEN }}
           generate-only: 'true'
@@ -223,7 +254,7 @@ jobs:
       # Sync to PostHog only on main branch
       - name: Sync to PostHog
         if: github.ref == 'refs/heads/main'
-        uses: hogsync@v1
+        uses: stephenbyrne99/hogsync@v1
         with:
           posthog-project-id: ${{ secrets.POSTHOG_PROJECT_ID }}
           posthog-api-token: ${{ secrets.POSTHOG_API_TOKEN }}
@@ -235,6 +266,7 @@ jobs:
 
 | Input | Description | Required | Default |
 |-------|-------------|----------|---------|
+| `version` | HogSync version to use | ❌ | `latest` |
 | `posthog-project-id` | PostHog project ID | ✅ | - |
 | `posthog-api-token` | PostHog API token | ✅ | - |
 | `posthog-host` | PostHog host URL | ❌ | `https://app.posthog.com` |

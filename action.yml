@@ -3,6 +3,11 @@ description: 'Sync feature flags to PostHog and generate TypeScript types'
 author: 'Stephen Byrne'
 
 inputs:
+  version:
+    description: 'HogSync version to use (default: latest)'
+    required: false
+    default: 'latest'
+  
   config-file:
     description: 'Path to configuration file'
     required: false
@@ -44,22 +49,58 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Setup Bun
-      uses: oven-sh/setup-bun@v1
-      with:
-        bun-version: latest
+    - name: Detect platform
+      shell: bash
+      id: platform
+      run: |
+        case "${{ runner.os }}" in
+          Linux)   os="linux" ;;
+          macOS)   os="darwin" ;;
+          Windows) os="win32" ;;
+          *)       echo "Unsupported OS: ${{ runner.os }}"; exit 1 ;;
+        esac
+        
+        case "${{ runner.arch }}" in
+          X64)   arch="x64" ;;
+          ARM64) arch="arm64" ;;
+          *)     echo "Unsupported arch: ${{ runner.arch }}"; exit 1 ;;
+        esac
+        
+        echo "target=${os}-${arch}" >> $GITHUB_OUTPUT
     
-    - name: Install dependencies
+    - name: Download hogsync binary
       shell: bash
       run: |
-        cd ${{ github.action_path }}
-        bun install
-    
-    - name: Build binary
-      shell: bash
-      run: |
-        cd ${{ github.action_path }}
-        bun run build:binary
+        VERSION="${{ inputs.version }}"
+        TARGET="${{ steps.platform.outputs.target }}"
+        
+        if [ "$VERSION" = "latest" ]; then
+          DOWNLOAD_URL="https://github.com/stephenbyrne99/hogsync/releases/latest/download/hogsync-${TARGET}.zip"
+        else
+          DOWNLOAD_URL="https://github.com/stephenbyrne99/hogsync/releases/download/${VERSION}/hogsync-${TARGET}.zip"
+        fi
+        
+        echo "Downloading from: $DOWNLOAD_URL"
+        curl -fsSL "$DOWNLOAD_URL" -o hogsync.zip
+        
+        # Extract binary
+        if command -v unzip >/dev/null 2>&1; then
+          unzip -q hogsync.zip
+        else
+          # Fallback for systems without unzip
+          python -m zipfile -e hogsync.zip .
+        fi
+        
+        # Make executable and move to expected location
+        if [ -f "hogsync.exe" ]; then
+          chmod +x hogsync.exe
+          mv hogsync.exe hogsync
+        else
+          chmod +x hogsync
+        fi
+        
+        # Verify binary works
+        ./hogsync --version
     
     - name: Create config file
       shell: bash
@@ -84,13 +125,13 @@ runs:
       if: inputs.generate-only != 'true'
       shell: bash
       run: |
-        ${{ github.action_path }}/bin/hogsync sync --config hogsync.config.js
+        ./hogsync sync --config hogsync.config.js
     
     - name: Generate TypeScript
       if: inputs.sync-only != 'true'
       shell: bash
       run: |
-        ${{ github.action_path }}/bin/hogsync generate --config hogsync.config.js
+        ./hogsync generate --config hogsync.config.js
 
 branding:
   icon: 'flag'

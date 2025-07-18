@@ -1,0 +1,96 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']  # every SemVer tag creates a release
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: x64
+            target: linux-x64
+          - os: ubuntu-latest
+            arch: arm64
+            target: linux-arm64
+          - os: macos-latest
+            arch: x64
+            target: darwin-x64
+          - os: macos-latest
+            arch: arm64
+            target: darwin-arm64
+          - os: windows-latest
+            arch: x64
+            target: win32-x64
+          - os: windows-latest
+            arch: arm64
+            target: win32-arm64
+    
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build binary
+        run: bun run build:binary
+
+      - name: Package binary
+        shell: bash
+        run: |
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            # Windows executable has .exe extension
+            if [[ -f "bin/hogsync.exe" ]]; then
+              zip -j hogsync-${{ matrix.target }}.zip bin/hogsync.exe
+            else
+              zip -j hogsync-${{ matrix.target }}.zip bin/hogsync
+            fi
+          else
+            zip -j hogsync-${{ matrix.target }}.zip bin/hogsync
+          fi
+
+      - name: Generate checksum
+        shell: bash
+        run: |
+          if command -v shasum >/dev/null 2>&1; then
+            shasum -a 256 hogsync-${{ matrix.target }}.zip > hogsync-${{ matrix.target }}.zip.sha256
+          else
+            sha256sum hogsync-${{ matrix.target }}.zip > hogsync-${{ matrix.target }}.zip.sha256
+          fi
+
+      - name: Upload artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            hogsync-${{ matrix.target }}.zip
+            hogsync-${{ matrix.target }}.zip.sha256
+          draft: false
+          prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}
+
+  create-checksums:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create combined checksums file
+        run: |
+          find artifacts -name "*.sha256" -exec cat {} \; > checksums.txt
+          echo "Combined checksums:"
+          cat checksums.txt
+
+      - name: Upload combined checksums
+        uses: softprops/action-gh-release@v2
+        with:
+          files: checksums.txt

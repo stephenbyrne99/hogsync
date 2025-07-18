@@ -108,3 +108,5 @@ test-output.ts
 
 # Claude/AI assistant files
 .claude
+
+temp

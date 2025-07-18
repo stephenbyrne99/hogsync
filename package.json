@@ -12,6 +12,9 @@
     "build:tsc": "tsc -p tsconfig.build.json",
     "build:cli": "bun build src/cli.ts --outdir dist --target node",
     "build:binary": "bun build src/cli.ts --compile --outfile bin/hogsync",
+    "publish:cross-platform": "bun run scripts/publish.ts",
+    "publish:cross-platform:dry": "bun run scripts/publish.ts --dry",
+    "publish:cross-platform:snapshot": "bun run scripts/publish.ts --snapshot",
     "prepublishOnly": "bun run build && bun run build:binary",
     "generate:flags": "bun run scripts/generate-feature-flags.ts",
     "sync:flags": "bun run scripts/sync-feature-flags.js",
@@ -53,6 +56,7 @@
     "dist/",
     "bin/",
     "templates/",
+    "scripts/postinstall.mjs",
     "action.yml",
     "README.md",
     "PUBLISHING.md"

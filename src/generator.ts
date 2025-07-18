@@ -1,6 +1,12 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Config, FlagConfig } from './types';
+import {
+  validateDirectoryPath,
+  validateFileSize,
+  validateFlagSchema,
+  validatePath,
+} from './validation';
 
 /**
  * Generates TypeScript constants and types from feature flag JSON files.
@@ -27,12 +33,15 @@ import type { Config, FlagConfig } from './types';
  * - Exits with code 1 if flags directory doesn't exist
  */
 export async function generateFlags(config: Config): Promise<void> {
-  if (!existsSync(config.flagsDir)) {
+  // Validate flags directory path for security
+  const safeFlagsDir = validateDirectoryPath(config.flagsDir);
+
+  if (!existsSync(safeFlagsDir)) {
     console.error(`❌ Flags directory not found: ${config.flagsDir}`);
     process.exit(1);
   }
 
-  const files = await Array.fromAsync(new Bun.Glob('*.json').scan(config.flagsDir));
+  const files = await Array.fromAsync(new Bun.Glob('*.json').scan(safeFlagsDir));
 
   if (files.length === 0) {
     console.log('⚠️  No flag files found');
@@ -44,17 +53,19 @@ export async function generateFlags(config: Config): Promise<void> {
 
   for (const file of files) {
     try {
-      const content = readFileSync(join(config.flagsDir, file), 'utf8');
-      const json: FlagConfig = JSON.parse(content);
+      const filePath = join(safeFlagsDir, file);
 
-      // Validate required fields
-      if (!json.key || !json.name || json.active === undefined) {
-        console.error(`❌ ${file}: missing required field (key, name, or active)`);
-        continue;
-      }
+      // Validate file size to prevent resource exhaustion
+      await validateFileSize(filePath);
 
-      keys.push(json.key);
-      flagConfigs.push(json);
+      const content = readFileSync(filePath, 'utf8');
+      const json = JSON.parse(content);
+
+      // Validate the flag schema
+      const validatedFlag = validateFlagSchema(json, file);
+
+      keys.push(validatedFlag.key);
+      flagConfigs.push(validatedFlag);
     } catch (error) {
       if (
         error instanceof Error &&
@@ -63,7 +74,7 @@ export async function generateFlags(config: Config): Promise<void> {
         console.error(`❌ Error reading ${file}: ${error.message}`);
       } else {
         console.error(
-          `❌ Error parsing ${file}:`,
+          `❌ Error processing ${file}:`,
           error instanceof Error ? error.message : String(error)
         );
       }
@@ -72,13 +83,14 @@ export async function generateFlags(config: Config): Promise<void> {
 
   const body = generateTypeScriptContent(keys, flagConfigs, config);
 
-  // Ensure output directory exists
-  const outputDir = config.outputFile.substring(0, config.outputFile.lastIndexOf('/'));
+  // Validate and ensure output directory exists
+  const safeOutputFile = validatePath(config.outputFile);
+  const outputDir = safeOutputFile.substring(0, safeOutputFile.lastIndexOf('/'));
   if (outputDir && !existsSync(outputDir)) {
     await Bun.write(`${outputDir}/.gitkeep`, '');
   }
 
-  await Bun.write(config.outputFile, body);
+  await Bun.write(safeOutputFile, body);
   console.log(`✓ Generated ${config.outputFile} (${keys.length} flags)`);
 }
 

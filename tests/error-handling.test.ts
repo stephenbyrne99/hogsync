@@ -120,7 +120,7 @@ describe('Error Handling', () => {
 
       await generateFlags(testConfig);
 
-      expect(errorMessages.some((msg) => msg.includes('Error parsing'))).toBe(true);
+      expect(errorMessages.some((msg) => msg.includes('Error processing'))).toBe(true);
 
       console.error = originalConsoleError;
     });
@@ -170,7 +170,9 @@ describe('Error Handling', () => {
 
       await generateFlags(testConfig);
 
-      expect(errorMessages.some((msg) => msg.includes('missing required field'))).toBe(true);
+      expect(errorMessages.some((msg) => msg.includes('Feature flag validation failed'))).toBe(
+        true
+      );
 
       console.error = originalConsoleError;
     });
@@ -308,8 +310,8 @@ describe('Error Handling', () => {
 
       await generateFlags(config);
 
-      // Check that error handling works (should have parsing error)
-      expect(errorMessages.some((msg) => msg.includes('Error parsing'))).toBe(true);
+      // Check that error handling works (should have processing error)
+      expect(errorMessages.some((msg) => msg.includes('Error processing'))).toBe(true);
 
       console.error = originalConsoleError;
     });

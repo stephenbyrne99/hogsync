@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Config, FlagConfig } from './types';
+import { validateDirectoryPath, validateFlagSchema } from './validation';
 
 /**
  * Synchronizes local feature flag JSON files with PostHog.
@@ -38,12 +39,15 @@ export async function syncFlags(config: Config): Promise<void> {
     process.exit(1);
   }
 
-  if (!existsSync(config.flagsDir)) {
+  // Validate flags directory path for security
+  const safeFlagsDir = validateDirectoryPath(config.flagsDir);
+
+  if (!existsSync(safeFlagsDir)) {
     console.error(`❌ Flags directory not found: ${config.flagsDir}`);
     process.exit(1);
   }
 
-  const files = await Array.fromAsync(new Bun.Glob('*.json').scan(config.flagsDir));
+  const files = await Array.fromAsync(new Bun.Glob('*.json').scan(safeFlagsDir));
 
   if (files.length === 0) {
     console.log('⚠️  No flag files found to sync');
@@ -59,7 +63,11 @@ export async function syncFlags(config: Config): Promise<void> {
 
   for (const file of files) {
     try {
-      const flagData: FlagConfig = JSON.parse(readFileSync(join(config.flagsDir, file), 'utf8'));
+      const filePath = join(safeFlagsDir, file);
+      const rawData = JSON.parse(readFileSync(filePath, 'utf8'));
+
+      // Validate flag schema before syncing
+      const flagData = validateFlagSchema(rawData, file);
 
       console.log(`\nProcessing flag: ${flagData.key}`);
 

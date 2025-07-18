@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { loadConfig } from './config';
 import { generateFlags } from './generator';
 import { syncFlags } from './sync';
+import { validateDirectoryPath, validateFlagSchema, validatePath } from './validation';
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -82,7 +83,18 @@ async function initConfig() {
 
 function getConfigPath(): string {
   const configIndex = args.findIndex((arg) => arg === '-c' || arg === '--config');
-  return configIndex !== -1 && args[configIndex + 1] ? args[configIndex + 1] : 'hogsync.config.js';
+  const configPath =
+    configIndex !== -1 && args[configIndex + 1] ? args[configIndex + 1] : 'hogsync.config.js';
+
+  // Validate config path for security
+  try {
+    return validatePath(configPath);
+  } catch (error) {
+    console.error(
+      `❌ Invalid config path: ${error instanceof Error ? error.message : String(error)}`
+    );
+    process.exit(1);
+  }
 }
 
 async function handleGenerate() {
@@ -101,12 +113,15 @@ async function handleValidate() {
   const configPath = getConfigPath();
   const config = await loadConfig(configPath);
 
-  if (!existsSync(config.flagsDir)) {
+  // Validate flags directory path
+  const safeFlagsDir = validateDirectoryPath(config.flagsDir);
+
+  if (!existsSync(safeFlagsDir)) {
     console.error(`❌ Flags directory not found: ${config.flagsDir}`);
     process.exit(1);
   }
 
-  const files = await Array.fromAsync(new Bun.Glob('*.json').scan(config.flagsDir));
+  const files = await Array.fromAsync(new Bun.Glob('*.json').scan(safeFlagsDir));
 
   console.log(`Validating ${files.length} flag files...`);
 
@@ -114,23 +129,15 @@ async function handleValidate() {
 
   for (const file of files) {
     try {
-      const content = readFileSync(join(config.flagsDir, file), 'utf8');
+      const filePath = join(safeFlagsDir, file);
+      const content = readFileSync(filePath, 'utf8');
       const flag = JSON.parse(content);
 
-      if (!flag.key || !flag.name) {
-        console.error(`❌ ${file}: Missing required fields (key, name)`);
-        hasErrors = true;
-      }
-
-      if (typeof flag.active !== 'boolean') {
-        console.error(`❌ ${file}: 'active' must be a boolean`);
-        hasErrors = true;
-      }
+      // Use comprehensive schema validation
+      validateFlagSchema(flag, file);
+      console.log(`✓ ${file}: Valid`);
     } catch (error) {
-      console.error(
-        `❌ ${file}: Invalid JSON -`,
-        error instanceof Error ? error.message : String(error)
-      );
+      console.error(`❌ ${file}: ${error instanceof Error ? error.message : String(error)}`);
       hasErrors = true;
     }
   }

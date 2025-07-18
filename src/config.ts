@@ -1,5 +1,6 @@
 import { existsSync } from 'node:fs';
 import type { Config } from './types';
+import { validateConfig, validatePath } from './validation';
 
 /**
  * Loads and merges configuration from a config file with default values and environment variables.
@@ -20,6 +21,9 @@ import type { Config } from './types';
  * - Supports both CommonJS (.js) and ES module (.mjs) config files
  */
 export async function loadConfig(configPath: string): Promise<Config> {
+  // Validate config path for security
+  const safeConfigPath = validatePath(configPath);
+
   const defaultConfig: Config = {
     flagsDir: 'feature-flags',
     outputFile: 'src/generated/feature-flags.ts',
@@ -35,7 +39,7 @@ export async function loadConfig(configPath: string): Promise<Config> {
     },
   };
 
-  if (!existsSync(configPath)) {
+  if (!existsSync(safeConfigPath)) {
     console.log(`⚠️  Config file not found: ${configPath}`);
     console.log('Using default configuration with environment variables');
     return defaultConfig;
@@ -44,14 +48,13 @@ export async function loadConfig(configPath: string): Promise<Config> {
   try {
     // Use dynamic import for ES modules or require for CommonJS
     let userConfig: Partial<Config>;
-    if (configPath.endsWith('.js')) {
+    if (safeConfigPath.endsWith('.js')) {
       // For CommonJS modules
-      const fullPath = configPath.startsWith('/') ? configPath : `${process.cwd()}/${configPath}`;
-      delete require.cache[require.resolve(fullPath)];
-      userConfig = require(fullPath) as Partial<Config>;
+      delete require.cache[require.resolve(safeConfigPath)];
+      userConfig = require(safeConfigPath) as Partial<Config>;
     } else {
       // For ES modules
-      const configUrl = `file://${process.cwd()}/${configPath}`;
+      const configUrl = `file://${safeConfigPath}`;
       const importedModule = (await import(`${configUrl}?t=${Date.now()}`)) as {
         default?: Partial<Config>;
       } & Partial<Config>;
@@ -63,7 +66,7 @@ export async function loadConfig(configPath: string): Promise<Config> {
       throw new Error('Config file must export an object');
     }
 
-    return {
+    const mergedConfig = {
       ...defaultConfig,
       ...userConfig,
       posthog: {
@@ -75,6 +78,11 @@ export async function loadConfig(configPath: string): Promise<Config> {
         ...userConfig.generation,
       },
     };
+
+    // Validate the final configuration
+    validateConfig(mergedConfig);
+
+    return mergedConfig;
   } catch (error) {
     console.error(
       `❌ Error loading config file ${configPath}:`,

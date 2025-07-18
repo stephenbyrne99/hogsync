@@ -56,7 +56,7 @@ for (const [os, arch] of targets) {
   );
 
   // Publish the platform-specific package
-  if (!dry) await $`cd dist/${name} && npm publish --access public --tag ${npmTag}`;
+  if (!dry) await $`cd dist/${name} && bun publish --access public --tag ${npmTag}`;
   optionalDependencies[name] = version;
 }
 
@@ -92,7 +92,7 @@ await Bun.file(`./dist/${pkg.name}/package.json`).write(
   )
 );
 
-if (!dry) await $`cd ./dist/${pkg.name} && npm publish --access public --tag ${npmTag}`;
+if (!dry) await $`cd ./dist/${pkg.name} && bun publish --access public --tag ${npmTag}`;
 
 if (!snapshot) {
   // Github Release

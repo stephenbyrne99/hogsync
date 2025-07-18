@@ -30,6 +30,9 @@ jobs:
     
     runs-on: ${{ matrix.os }}
     
+    permissions:
+      contents: write  # allows creating and updating releases
+    
     steps:
       - uses: actions/checkout@v4
 
@@ -78,6 +81,10 @@ jobs:
   create-checksums:
     needs: build
     runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write  # allows creating and updating releases
+    
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4

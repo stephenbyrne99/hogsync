@@ -68,27 +68,8 @@ function findBinary() {
   }
 }
 
-function isCI() {
-  return !!(
-    process.env.CI ||
-    process.env.CONTINUOUS_INTEGRATION ||
-    process.env.BUILD_NUMBER ||
-    process.env.GITHUB_ACTIONS ||
-    process.env.GITLAB_CI ||
-    process.env.CIRCLECI ||
-    process.env.TRAVIS ||
-    process.env.JENKINS_URL ||
-    process.env.BUILDKITE ||
-    process.env.DRONE
-  );
-}
-
 function main() {
-  // Skip postinstall in CI environments
-  if (isCI()) {
-    console.log('Skipping hogsync binary symlink creation in CI environment');
-    return;
-  }
+  // Note: We run postinstall in all environments to ensure proper binary resolution
 
   try {
     const binaryPath = findBinary();

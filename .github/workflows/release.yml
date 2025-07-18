@@ -73,28 +73,3 @@ jobs:
           files: |
             hogsync-${{ matrix.target }}.zip
             hogsync-${{ matrix.target }}.zip.sha256
-
-  create-checksums:
-    needs: [create-release, build]
-    runs-on: ubuntu-latest
-    
-    permissions:
-      contents: write  # allows creating and updating releases
-    
-    steps:
-      - name: Download release assets
-        run: |
-          gh release download ${{ github.ref_name }} --pattern "*.sha256"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create combined checksums file
-        run: |
-          cat *.sha256 > checksums.txt
-          echo "Combined checksums:"
-          cat checksums.txt
-
-      - name: Upload combined checksums to existing release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: checksums.txt

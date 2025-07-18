@@ -103,7 +103,7 @@ async function main() {
   console.log('building React package');
   await $`cd packages/react && bun run build`;
   await $`mkdir -p ./dist/${reactPkg.name}`;
-  await $`cp -r ./packages/react/dist/* ./dist/${reactPkg.name}/`;
+  await $`cp -r ./packages/react/dist ./dist/${reactPkg.name}/`;
 
   // Create React package.json for publishing
   const updatedReactPkg = {
@@ -116,31 +116,27 @@ async function main() {
   );
 
   if (!dry) {
+    // Check if package exists first
+    let packageExists = false;
     try {
+      await $`bun pm view ${reactPkg.name} version`;
+      packageExists = true;
+    } catch {
+      packageExists = false;
+    }
+
+    if (packageExists) {
+      // Package exists, publish with tag
       await $`cd ./dist/${reactPkg.name} && bun publish --access public --tag ${npmTag}`;
-    } catch (error: any) {
-      // If it's a 404 error (package doesn't exist), try publishing without tag first
-      if (
-        error.stderr?.includes('404 Not Found') ||
-        error.stderr?.includes('does not exist in this registry')
-      ) {
-        console.log('Package does not exist, creating initial version...');
-        try {
-          await $`cd ./dist/${reactPkg.name} && bun publish --access public`;
-          // If we successfully published the initial version and we wanted a specific tag, tag it now
-          if (npmTag !== 'latest') {
-            console.log(`Tagging initial version with ${npmTag}...`);
-            await $`cd ./dist/${reactPkg.name} && bun pm dist-tag add ${reactPkg.name}@${version} ${npmTag}`;
-          }
-        } catch (publishError: any) {
-          console.error(
-            'Failed to publish initial version:',
-            publishError.stderr || publishError.message
-          );
-          throw publishError;
-        }
-      } else {
-        throw error;
+    } else {
+      // Package doesn't exist, publish initial version without tag
+      console.log('Package does not exist, creating initial version...');
+      await $`cd ./dist/${reactPkg.name} && bun publish --access public --no-tag`;
+
+      // If we wanted a specific tag (not latest), add it after initial publish
+      if (npmTag !== 'latest') {
+        console.log(`Tagging initial version with ${npmTag}...`);
+        await $`bun pm dist-tag add ${reactPkg.name}@${version} ${npmTag}`;
       }
     }
   }

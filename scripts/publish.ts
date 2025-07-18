@@ -75,16 +75,20 @@ async function main() {
   await $`cp -r ./packages/cli/dist/* ./dist/${cliPkg.name}/dist/`;
   await $`cp -r ./packages/cli/templates/* ./dist/${cliPkg.name}/templates/`;
   await $`cp ./action.yml ./dist/${cliPkg.name}/action.yml`;
+  await $`cp ./packages/cli/tsconfig.build.json ./dist/${cliPkg.name}/tsconfig.build.json`;
+  await $`cp ./packages/cli/tsconfig.json ./dist/${cliPkg.name}/tsconfig.json`;
 
+  const { scripts: _scripts, devDependencies: _devDependencies, ...publishPkg } = cliPkg;
   await Bun.file(`./dist/${cliPkg.name}/package.json`).write(
     JSON.stringify(
       {
-        ...cliPkg,
+        ...publishPkg,
         version,
         optionalDependencies,
         bin: {
           [cliPkg.name]: `./bin/${cliPkg.name}`,
         },
+        scripts: {}, // Remove all scripts to prevent prepublishOnly from running
       },
       null,
       2

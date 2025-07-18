@@ -235,9 +235,9 @@ function validateSchema(data: unknown, schema: typeof FLAG_SCHEMA): string[] {
 /**
  * Validates a single property against its schema definition.
  */
-// biome-ignore lint/suspicious/noExplicitAny: Schema validation requires flexible typing
 function validateProperty(
   value: unknown,
+  // biome-ignore lint/suspicious/noExplicitAny: Schema validation requires flexible typing for JSON schema objects
   schema: Record<string, any>,
   propertyName: string
 ): string[] {

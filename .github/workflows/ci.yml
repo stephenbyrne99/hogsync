@@ -36,6 +36,12 @@ jobs:
       - name: Build binary
         run: bun run build:binary
         
+      - name: Make binary executable
+        run: chmod +x bin/hogsync
+        
+      - name: Verify binary exists
+        run: ls -la bin/hogsync
+        
       - name: Run tests
         run: bun test
         

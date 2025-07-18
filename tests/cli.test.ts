@@ -37,6 +37,11 @@ async function runCLI(
 
 describe('CLI Commands', () => {
   beforeEach(() => {
+    // Check if CLI binary exists
+    if (!existsSync(CLI_PATH)) {
+      throw new Error(`CLI binary not found at ${CLI_PATH}. Run 'bun run build:binary' first.`);
+    }
+
     // Clean up and create test directory
     if (existsSync(TEST_DIR)) {
       rmSync(TEST_DIR, { recursive: true, force: true });

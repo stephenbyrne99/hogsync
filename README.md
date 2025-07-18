@@ -108,7 +108,7 @@ hogsync sync
 
 ## Framework Usage
 
-### Universal (Auto-detects framework)
+### React
 
 The `createFeatureFlags` function automatically detects your framework and environment:
 

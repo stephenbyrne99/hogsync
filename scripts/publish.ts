@@ -73,8 +73,8 @@ async function main() {
   await $`mkdir -p ./dist/${cliPkg.name}/dist`;
   await $`mkdir -p ./dist/${cliPkg.name}/templates`;
 
-  // Copy the bin directory with shell script and cmd file
-  await $`cp -r ./packages/cli/bin ./dist/${cliPkg.name}/bin`;
+  // Copy the bin directory contents (shell script and cmd file)
+  await $`cp ./packages/cli/bin/* ./dist/${cliPkg.name}/bin/`;
 
   // Copy the postinstall script
   await $`cp ./packages/cli/scripts/postinstall.mjs ./dist/${cliPkg.name}/postinstall.mjs`;

@@ -1,9 +1,8 @@
 #!/usr/bin/env bun
 
 import { $ } from 'bun';
-
-const cliPkg = require('../packages/cli/package.json');
-const reactPkg = require('../packages/react/package.json');
+import cliPkg from '../packages/cli/package.json';
+import reactPkg from '../packages/react/package.json';
 
 async function main() {
   const dry = process.argv.includes('--dry');
@@ -70,11 +69,9 @@ async function main() {
   await $`mkdir -p ./dist/${cliPkg.name}/dist`;
   await $`mkdir -p ./dist/${cliPkg.name}/templates`;
 
-  // Create a placeholder binary (will be replaced by postinstall)
-  await $`echo '#!/usr/bin/env node\nconsole.log("Please run: npm install");' > ./dist/${cliPkg.name}/bin/${cliPkg.name}`;
-  await $`chmod +x ./dist/${cliPkg.name}/bin/${cliPkg.name}`;
+  // Copy the bin directory with shell script
+  await $`cp -r ./packages/cli/bin ./dist/${cliPkg.name}/bin`;
 
-  await $`cp ./packages/cli/scripts/postinstall.mjs ./dist/${cliPkg.name}/postinstall.mjs`;
   await $`cp -r ./packages/cli/dist/* ./dist/${cliPkg.name}/dist/`;
   await $`cp -r ./packages/cli/templates/* ./dist/${cliPkg.name}/templates/`;
   await $`cp ./action.yml ./dist/${cliPkg.name}/action.yml`;
@@ -87,9 +84,6 @@ async function main() {
         optionalDependencies,
         bin: {
           [cliPkg.name]: `./bin/${cliPkg.name}`,
-        },
-        scripts: {
-          postinstall: 'node ./postinstall.mjs',
         },
       },
       null,

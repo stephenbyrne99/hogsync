@@ -17,7 +17,6 @@
     "publish:cross-platform:dry": "bun run scripts/publish.ts --dry",
     "publish:cross-platform:snapshot": "bun run scripts/publish.ts --snapshot",
     "prepublishOnly": "bun run build && bun run build:binary",
-    "postinstall": "node scripts/postinstall.mjs",
     "generate:flags": "bun run scripts/generate-feature-flags.ts",
     "sync:flags": "bun run scripts/sync-feature-flags.js",
     "dev": "bun run --watch src/cli.ts",
@@ -44,7 +43,6 @@
     "dist/",
     "bin/",
     "templates/",
-    "scripts/postinstall.mjs",
     "action.yml",
     "README.md"
   ],

@@ -33,17 +33,5 @@ jobs:
       - name: Build
         run: bun run build
         
-      - name: Build binary
-        run: bun run build:binary
-        
-      - name: Make binary executable
-        run: chmod +x packages/cli/bin/hogsync
-        
-      - name: Verify binary exists
-        run: ls -la packages/cli/bin/hogsync
-        
       - name: Run tests
         run: bun test
-        
-      - name: Test CLI binary
-        run: ./packages/cli/bin/hogsync --help

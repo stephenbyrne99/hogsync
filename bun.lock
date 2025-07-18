@@ -22,7 +22,7 @@
       },
     },
     "packages/react": {
-      "name": "@hogsync/react",
+      "name": "@stephen_byrne_/hogsync-react",
       "version": "1.0.0-alpha.21",
       "devDependencies": {
         "@types/react": "^18.0.0",
@@ -53,7 +53,7 @@
 
     "@biomejs/cli-win32-x64": ["@biomejs/cli-win32-x64@2.1.2", "", { "os": "win32", "cpu": "x64" }, "sha512-9zajnk59PMpjBkty3bK2IrjUsUHvqe9HWwyAWQBjGLE7MIBjbX2vwv1XPEhmO2RRuGoTkVx3WCanHrjAytICLA=="],
 
-    "@hogsync/react": ["@hogsync/react@workspace:packages/react"],
+    "@stephen_byrne_/hogsync-react": ["@stephen_byrne_/hogsync-react@workspace:packages/react"],
 
     "@types/bun": ["@types/bun@1.2.18", "", { "dependencies": { "bun-types": "1.2.18" } }, "sha512-Xf6RaWVheyemaThV0kUfaAUvCNokFr+bH8Jxp+tTZfx7dAPA8z9ePnP9S9+Vspzuxxx9JRAXhnyccRj3GyCMdQ=="],
 

@@ -115,7 +115,19 @@ async function main() {
     JSON.stringify(updatedReactPkg, null, 2)
   );
 
-  if (!dry) await $`cd ./dist/${reactPkg.name} && bun publish --access public --tag ${npmTag}`;
+  if (!dry) {
+    try {
+      await $`cd ./dist/${reactPkg.name} && bun publish --access public --tag ${npmTag}`;
+    } catch (error: any) {
+      // If it's a 404 error (package doesn't exist), try publishing without tag first
+      if (error.stderr?.includes('404 Not Found')) {
+        console.log('Package does not exist, creating initial version...');
+        await $`cd ./dist/${reactPkg.name} && bun publish --access public`;
+      } else {
+        throw error;
+      }
+    }
+  }
 
   if (!snapshot) {
     // Github Release

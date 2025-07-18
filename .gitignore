@@ -11,7 +11,9 @@ build/
 *.tsbuildinfo
 
 # Runtime binaries (built via prepublishOnly)
-bin/
+bin/hogsync
+# Keep platform-specific binaries for npm publishing
+!bin/hogsync-*
 
 # Environment files
 .env

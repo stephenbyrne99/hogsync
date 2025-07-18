@@ -11,8 +11,9 @@
     "build:clean": "rm -rf dist",
     "build:tsc": "tsc -p tsconfig.build.json",
     "build:cli": "bun build src/cli.ts --outdir dist --target node",
-    "build:binary": "bun build src/cli.ts --compile --outfile bin/hogsync",
+    "build:binary": "mkdir -p bin && bun build src/cli.ts --compile --outfile bin/hogsync-linux-x64 --target=bun-linux-x64 && bun build src/cli.ts --compile --outfile bin/hogsync-darwin-x64 --target=bun-darwin-x64 && bun build src/cli.ts --compile --outfile bin/hogsync-darwin-arm64 --target=bun-darwin-arm64 && bun build src/cli.ts --compile --outfile bin/hogsync-win32-x64.exe --target=bun-windows-x64",
     "prepublishOnly": "bun run build && bun run build:binary",
+    "postinstall": "node scripts/postinstall.js",
     "generate:flags": "bun run scripts/generate-feature-flags.ts",
     "sync:flags": "bun run scripts/sync-feature-flags.js",
     "dev": "bun run --watch src/cli.ts",
@@ -46,6 +47,7 @@
   "files": [
     "dist/",
     "bin/",
+    "scripts/postinstall.js",
     "templates/",
     "action.yml",
     "README.md",

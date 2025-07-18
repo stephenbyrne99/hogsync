@@ -120,9 +120,25 @@ async function main() {
       await $`cd ./dist/${reactPkg.name} && bun publish --access public --tag ${npmTag}`;
     } catch (error: any) {
       // If it's a 404 error (package doesn't exist), try publishing without tag first
-      if (error.stderr?.includes('404 Not Found')) {
+      if (
+        error.stderr?.includes('404 Not Found') ||
+        error.stderr?.includes('does not exist in this registry')
+      ) {
         console.log('Package does not exist, creating initial version...');
-        await $`cd ./dist/${reactPkg.name} && bun publish --access public`;
+        try {
+          await $`cd ./dist/${reactPkg.name} && bun publish --access public`;
+          // If we successfully published the initial version and we wanted a specific tag, tag it now
+          if (npmTag !== 'latest') {
+            console.log(`Tagging initial version with ${npmTag}...`);
+            await $`cd ./dist/${reactPkg.name} && bun pm dist-tag add ${reactPkg.name}@${version} ${npmTag}`;
+          }
+        } catch (publishError: any) {
+          console.error(
+            'Failed to publish initial version:',
+            publishError.stderr || publishError.message
+          );
+          throw publishError;
+        }
       } else {
         throw error;
       }

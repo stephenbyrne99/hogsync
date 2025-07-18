@@ -61,7 +61,7 @@ describe('Path Validation', () => {
     }).toThrow(ValidationError);
 
     expect(() => {
-      validatePath(null as any, TEST_DIR);
+      validatePath(null as unknown as string, TEST_DIR);
     }).toThrow(ValidationError);
   });
 

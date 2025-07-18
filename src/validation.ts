@@ -235,7 +235,12 @@ function validateSchema(data: unknown, schema: typeof FLAG_SCHEMA): string[] {
 /**
  * Validates a single property against its schema definition.
  */
-function validateProperty(value: unknown, schema: any, propertyName: string): string[] {
+// biome-ignore lint/suspicious/noExplicitAny: Schema validation requires flexible typing
+function validateProperty(
+  value: unknown,
+  schema: Record<string, any>,
+  propertyName: string
+): string[] {
   const errors: string[] = [];
 
   // Type validation
@@ -402,31 +407,34 @@ export async function validateFileSize(
  * @param config - Configuration object to validate
  * @throws {ValidationError} If configuration is invalid
  */
-export function validateConfig(config: any): void {
+export function validateConfig(config: unknown): void {
   const errors: string[] = [];
 
   if (!config || typeof config !== 'object') {
     throw new ValidationError('Configuration must be an object', [], { config });
   }
 
-  if (!config.flagsDir || typeof config.flagsDir !== 'string') {
+  const configObj = config as Record<string, unknown>;
+
+  if (!configObj.flagsDir || typeof configObj.flagsDir !== 'string') {
     errors.push('flagsDir must be a non-empty string');
   }
 
-  if (!config.outputFile || typeof config.outputFile !== 'string') {
+  if (!configObj.outputFile || typeof configObj.outputFile !== 'string') {
     errors.push('outputFile must be a non-empty string');
   }
 
-  if (!config.posthog || typeof config.posthog !== 'object') {
+  if (!configObj.posthog || typeof configObj.posthog !== 'object') {
     errors.push('posthog configuration must be an object');
   } else {
-    if (!config.posthog.host || typeof config.posthog.host !== 'string') {
+    const posthogObj = configObj.posthog as Record<string, unknown>;
+    if (!posthogObj.host || typeof posthogObj.host !== 'string') {
       errors.push('posthog.host must be a non-empty string');
     }
-    if (config.posthog.projectId !== undefined && typeof config.posthog.projectId !== 'string') {
+    if (posthogObj.projectId !== undefined && typeof posthogObj.projectId !== 'string') {
       errors.push('posthog.projectId must be a string');
     }
-    if (config.posthog.apiToken !== undefined && typeof config.posthog.apiToken !== 'string') {
+    if (posthogObj.apiToken !== undefined && typeof posthogObj.apiToken !== 'string') {
       errors.push('posthog.apiToken must be a string');
     }
   }

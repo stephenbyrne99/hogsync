@@ -115,7 +115,7 @@ if (!snapshot) {
     .catch(() => []);
 
   const notes = commits
-    .map((commit: any) => `- ${commit.commit.message.split('\n')[0]}`)
+    .map((commit: { commit: { message: string } }) => `- ${commit.commit.message.split('\n')[0]}`)
     .filter((x: string) => {
       const lower = x.toLowerCase();
       return (

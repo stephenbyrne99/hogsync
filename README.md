@@ -38,6 +38,29 @@ Download the latest binary from [GitHub Releases](https://github.com/stephenbyrn
 
 > **Note**: Windows binaries are not currently available in automated releases. Windows users can install via npm: `npm install -g hogsync-cli`
 
+## Package vs Binary Names
+
+- **Package name**: `hogsync-cli` (what you install)
+- **Binary name**: `hogsync` (what you run after global install)
+
+### Usage Examples:
+```bash
+# Direct execution (recommended for CI/build scripts)
+npx hogsync-cli generate
+bunx hogsync-cli generate
+
+# After global installation
+npm install -g hogsync-cli
+hogsync generate  # Binary is available globally
+
+# As project dependency
+npm install --save-dev hogsync-cli
+# Then in package.json scripts:
+"scripts": {
+  "generate:flags": "hogsync generate"
+}
+```
+
 ## Quick Start
 
 ### Initialize Configuration
@@ -357,7 +380,20 @@ Add to your `package.json`:
 }
 ```
 
-### 3. Development with Auto-Updates
+### 3. Build Scripts (Vercel, Netlify, etc.)
+
+For build environments that support bunx:
+
+```json
+{
+  "scripts": {
+    "build": "bunx hogsync-cli generate && next build",
+    "dev": "bunx hogsync-cli generate && next dev"
+  }
+}
+```
+
+### 4. Development with Auto-Updates
 
 For automatic flag generation during development, set up your scripts to regenerate flags before starting your dev server:
 
@@ -379,7 +415,7 @@ For automatic flag generation during development, set up your scripts to regener
 
 This ensures your TypeScript types are always up-to-date when you start development or build your project.
 
-### 3. Git Hooks
+### 5. Git Hooks
 
 Pre-commit hook to validate flags:
 

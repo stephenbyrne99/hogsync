@@ -51,6 +51,14 @@ jobs:
       - name: Setup npm authentication
         run: |
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+          cat > ~/.bunfig.toml << EOF
+          [install]
+          registry = "https://registry.npmjs.org/"
+          
+          [install.scopes]
+          "" = { token = "${{ secrets.NPM_TOKEN }}", url = "https://registry.npmjs.org/" }
+          EOF
+          bun pm trust --all
 
       - name: Publish
         run: |

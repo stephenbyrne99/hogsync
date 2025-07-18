@@ -10,6 +10,7 @@
     "build": "bun run build:cli && bun run build:react",
     "build:cli": "cd packages/cli && bun run build",
     "build:react": "cd packages/react && bun run build",
+    "build:binary": "cd packages/cli && bun run build:binary",
     "publish:cross-platform": "bun run scripts/publish.ts",
     "publish:cross-platform:dry": "bun run scripts/publish.ts --dry",
     "publish:cross-platform:snapshot": "bun run scripts/publish.ts --snapshot",

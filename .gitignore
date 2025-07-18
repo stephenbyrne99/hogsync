@@ -10,8 +10,6 @@ dist/
 build/
 *.tsbuildinfo
 
-# Runtime binaries (built via prepublishOnly)
-bin/
 
 # Environment files
 .env

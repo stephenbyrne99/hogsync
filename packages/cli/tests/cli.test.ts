@@ -4,7 +4,7 @@ import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const TEST_DIR = join(process.cwd(), 'test-temp');
-const CLI_PATH = join(process.cwd(), 'bin/hogsync');
+const CLI_PATH = join(process.cwd(), 'packages/cli/bin/hogsync');
 
 // Helper to run CLI commands
 async function runCLI(

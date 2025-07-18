@@ -1,8 +1,7 @@
 {
   "name": "hogsync-monorepo",
-  "version": "1.0.0-alpha.21",
+  "version": "1.0.0-alpha.22",
   "description": "Type-safe PostHog feature flags with automated sync - Monorepo",
-
   "private": true,
   "workspaces": [
     "packages/*"

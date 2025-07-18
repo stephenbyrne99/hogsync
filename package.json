@@ -71,6 +71,13 @@
       "default": "./dist/src/react-hooks.js"
     }
   },
+  "typesVersions": {
+    "*": {
+      "react": [
+        "./dist/src/react-hooks.d.ts"
+      ]
+    }
+  },
   "peerDependencies": {
     "react": ">=16.8.0",
     "posthog-js": ">=1.0.0"

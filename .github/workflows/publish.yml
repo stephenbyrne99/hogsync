@@ -54,7 +54,7 @@ jobs:
           cat > ~/.bunfig.toml << EOF
           [install]
           registry = "https://registry.npmjs.org/"
-          
+
           [install.scopes]
           "" = { token = "${{ secrets.NPM_TOKEN }}", url = "https://registry.npmjs.org/" }
           EOF
@@ -69,5 +69,4 @@ jobs:
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
+          NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}

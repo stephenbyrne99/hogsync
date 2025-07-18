@@ -19,13 +19,13 @@ curl -fsSL https://raw.githubusercontent.com/stephenbyrne99/hogsync/main/install
 
 ### Package Managers
 
-| Method | Command |
-|--------|---------|
-| **Shell Script** | `curl -fsSL https://raw.githubusercontent.com/stephenbyrne99/hogsync/main/install.sh \| bash` |
-| **npm** | `npm install -g hogsync` |
-| **Homebrew** | `brew install stephenbyrne99/tap/hogsync` *(coming soon)* |
-| **Scoop** | `scoop install hogsync` *(coming soon)* |
-| **Arch AUR** | `yay -S hogsync-bin` *(coming soon)* |
+| Method | Platform | Command |
+|--------|----------|---------|
+| **Shell Script** | Linux, macOS | `curl -fsSL https://raw.githubusercontent.com/stephenbyrne99/hogsync/main/install.sh \| bash` |
+| **npm** | All platforms | `npm install -g hogsync` |
+| **Homebrew** | macOS | `brew install stephenbyrne99/tap/hogsync` *(coming soon)* |
+| **Scoop** | Windows | `scoop install hogsync` *(coming soon)* |
+| **Arch AUR** | Linux | `yay -S hogsync-bin` *(coming soon)* |
 
 ### Manual Download
 
@@ -35,8 +35,8 @@ Download the latest binary from [GitHub Releases](https://github.com/stephenbyrn
 - **Linux ARM64**: `hogsync-linux-arm64.zip`
 - **macOS x64**: `hogsync-darwin-x64.zip`
 - **macOS ARM64**: `hogsync-darwin-arm64.zip`
-- **Windows x64**: `hogsync-win32-x64.zip`
-- **Windows ARM64**: `hogsync-win32-arm64.zip`
+
+> **Note**: Windows binaries are not currently available in automated releases. Windows users can install via npm: `npm install -g hogsync`
 
 ## Quick Start
 

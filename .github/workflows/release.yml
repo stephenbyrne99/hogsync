@@ -34,12 +34,6 @@ jobs:
           - os: macos-latest
             arch: arm64
             target: darwin-arm64
-          - os: windows-latest
-            arch: x64
-            target: win32-x64
-          - os: windows-latest
-            arch: arm64
-            target: win32-arm64
     
     runs-on: ${{ matrix.os }}
     
@@ -62,16 +56,7 @@ jobs:
       - name: Package binary
         shell: bash
         run: |
-          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-            # Windows executable has .exe extension
-            if [[ -f "bin/hogsync.exe" ]]; then
-              zip -j hogsync-${{ matrix.target }}.zip bin/hogsync.exe
-            else
-              zip -j hogsync-${{ matrix.target }}.zip bin/hogsync
-            fi
-          else
-            zip -j hogsync-${{ matrix.target }}.zip bin/hogsync
-          fi
+          zip -j hogsync-${{ matrix.target }}.zip bin/hogsync
 
       - name: Generate checksum
         shell: bash

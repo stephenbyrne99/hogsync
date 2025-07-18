@@ -41,7 +41,10 @@ detect_platform() {
     case "$(uname -s)" in
         Linux*)     os="linux" ;;
         Darwin*)    os="darwin" ;;
-        CYGWIN*|MINGW*|MSYS*) os="win32" ;;
+        CYGWIN*|MINGW*|MSYS*) 
+            log_error "Windows binaries are not available via this installer."
+            log_error "Please install via npm: npm install -g hogsync"
+            exit 1 ;;
         *)          log_error "Unsupported operating system: $(uname -s)"; exit 1 ;;
     esac
 

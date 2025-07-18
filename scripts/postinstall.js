@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
+const fs = require('node:fs');
+const path = require('node:path');
+const os = require('node:os');
 
 function getPlatformBinary() {
   const platform = os.platform();
@@ -29,17 +29,33 @@ function getPlatformBinary() {
 
 function main() {
   try {
+    // Skip postinstall in CI/development environments
+    if (process.env.CI || process.env.NODE_ENV === 'development') {
+      console.log('Skipping binary installation in CI/development environment');
+      return;
+    }
+
     const binaryName = getPlatformBinary();
-    const sourcePath = path.join(__dirname, '..', 'bin', binaryName);
-    const targetPath = path.join(__dirname, '..', 'bin', 'hogsync');
+    const binDir = path.join(__dirname, '..', 'bin');
+    const sourcePath = path.join(binDir, binaryName);
+    const targetPath = path.join(binDir, 'hogsync');
+
+    // Skip postinstall if bin directory doesn't exist (development/CI scenario)
+    if (!fs.existsSync(binDir)) {
+      console.log('Skipping binary installation - bin directory not found (development mode)');
+      return;
+    }
 
     // Check if the platform-specific binary exists
     if (!fs.existsSync(sourcePath)) {
       console.error(`Binary not found for your platform: ${binaryName}`);
-      console.error('Available binaries:', fs.readdirSync(path.join(__dirname, '..', 'bin')));
+      try {
+        console.error('Available binaries:', fs.readdirSync(binDir));
+      } catch (_e) {
+        console.error('Could not list available binaries');
+      }
       process.exit(1);
     }
-
     // Remove existing hogsync binary if it exists
     if (fs.existsSync(targetPath)) {
       fs.unlinkSync(targetPath);

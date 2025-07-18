@@ -4,7 +4,8 @@ import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const TEST_DIR = join(process.cwd(), 'test-temp');
-const CLI_PATH = join(process.cwd(), 'packages/cli/bin/hogsync');
+const CLI_PATH = 'bun';
+const CLI_SCRIPT = join(process.cwd(), 'packages/cli/src/cli.ts');
 
 // Helper to run CLI commands
 async function runCLI(
@@ -12,7 +13,7 @@ async function runCLI(
   cwd = TEST_DIR
 ): Promise<{ stdout: string; stderr: string; exitCode: number }> {
   return new Promise((resolve) => {
-    const child = spawn(CLI_PATH, args, {
+    const child = spawn(CLI_PATH, [CLI_SCRIPT, ...args], {
       cwd,
       stdio: 'pipe',
       env: { ...process.env, NODE_ENV: 'test' },
@@ -41,9 +42,9 @@ const runCliTests = !process.env.CI;
 if (runCliTests) {
   describe('CLI Commands', () => {
     beforeEach(() => {
-      // Check if CLI binary exists
-      if (!existsSync(CLI_PATH)) {
-        throw new Error(`CLI binary not found at ${CLI_PATH}. Run 'bun run build:binary' first.`);
+      // Check if CLI script exists
+      if (!existsSync(CLI_SCRIPT)) {
+        throw new Error(`CLI script not found at ${CLI_SCRIPT}.`);
       }
 
       // Clean up and create test directory

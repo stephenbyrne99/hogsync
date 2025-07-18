@@ -20,7 +20,7 @@ else
     case "$(uname -s)" in
         Darwin) platform="darwin" ;;
         Linux) platform="linux" ;;
-        MINGW*|CYGWIN*|MSYS*) platform="win32" ;;
+        MINGW*|CYGWIN*|MSYS*) platform="windows" ;;
         *) platform="$(uname -s | tr '[:upper:]' '[:lower:]')" ;;
     esac
     
@@ -34,7 +34,7 @@ else
     
     name="hogsync-${platform}-${arch}"
     binary="hogsync"
-    [ "$platform" = "win32" ] && binary="hogsync.exe"
+    [ "$platform" = "windows" ] && binary="hogsync.exe"
     
     # Search for the binary starting from real script location
     resolved=""
@@ -49,15 +49,8 @@ else
     done
     
     if [ -z "$resolved" ]; then
-        # Development fallback: try to run TypeScript source with bun
-        dev_source="$script_dir/../src/cli.ts"
-        if [ -f "$dev_source" ] && command -v bun >/dev/null 2>&1; then
-            resolved="bun"
-            set -- "$dev_source" "$@"
-        else
-            printf "It seems that your package manager failed to install the right version of the hogsync CLI for your platform. You can try manually installing the \"%s\" package\n" "$name" >&2
-            exit 1
-        fi
+        printf "It seems that your package manager failed to install the right version of the hogsync CLI for your platform. You can try manually installing the \"%s\" package\n" "$name" >&2
+        exit 1
     fi
 fi
 

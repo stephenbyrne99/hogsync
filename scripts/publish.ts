@@ -25,9 +25,12 @@ async function main() {
     ['linux', 'x64'],
     ['darwin', 'x64'],
     ['darwin', 'arm64'],
+    ['windows', 'x64'],
+    // Note: bun doesn't support windows-arm64 compilation yet
   ];
 
-  await $`rm -rf dist packages/*/dist`;
+  await $`rm -rf dist`;
+  await $`find packages -name dist -type d -exec rm -rf {} + 2>/dev/null || true`;
 
   const optionalDependencies: Record<string, string> = {};
   const npmTag = snapshot ? 'snapshot' : 'latest';
@@ -40,7 +43,8 @@ async function main() {
 
     // Build the binary for the specific target
     const binaryName = os === 'windows' ? 'hogsync.exe' : 'hogsync';
-    await $`bun build --define HOGSYNC_VERSION="'${version}'" --compile --minify --target=bun-${os}-${arch} --outfile=dist/${name}/bin/${binaryName} ./packages/cli/src/cli.ts`;
+    const bunTarget = os;
+    await $`bun build --define HOGSYNC_VERSION="'${version}'" --compile --minify --target=bun-${bunTarget}-${arch} --outfile=dist/${name}/bin/${binaryName} ./packages/cli/src/cli.ts`;
 
     // Create package.json for the platform-specific package
     await Bun.file(`dist/${name}/package.json`).write(
@@ -69,8 +73,11 @@ async function main() {
   await $`mkdir -p ./dist/${cliPkg.name}/dist`;
   await $`mkdir -p ./dist/${cliPkg.name}/templates`;
 
-  // Copy the bin directory with shell script
+  // Copy the bin directory with shell script and cmd file
   await $`cp -r ./packages/cli/bin ./dist/${cliPkg.name}/bin`;
+
+  // Copy the postinstall script
+  await $`cp ./packages/cli/scripts/postinstall.mjs ./dist/${cliPkg.name}/postinstall.mjs`;
 
   await $`cp -r ./packages/cli/dist/* ./dist/${cliPkg.name}/dist/`;
   await $`cp -r ./packages/cli/templates/* ./dist/${cliPkg.name}/templates/`;
@@ -83,12 +90,15 @@ async function main() {
     JSON.stringify(
       {
         ...publishPkg,
+        name: cliPkg.name + '-cli', // Create separate published package name
         version,
         optionalDependencies,
         bin: {
           [cliPkg.name]: `./bin/${cliPkg.name}`,
         },
-        scripts: {}, // Remove all scripts to prevent prepublishOnly from running
+        scripts: {
+          postinstall: 'node ./postinstall.mjs',
+        },
       },
       null,
       2

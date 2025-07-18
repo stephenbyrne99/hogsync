@@ -22,7 +22,7 @@ curl -fsSL https://raw.githubusercontent.com/stephenbyrne99/hogsync/main/install
 | Method | Platform | Command |
 |--------|----------|---------|
 | **Shell Script** | Linux, macOS | `curl -fsSL https://raw.githubusercontent.com/stephenbyrne99/hogsync/main/install.sh \| bash` |
-| **npm** | All platforms | `npm install -g hogsync` |
+| **npm** | All platforms | `npm install -g hogsync-cli` |
 | **Homebrew** | macOS | `brew install stephenbyrne99/tap/hogsync` *(coming soon)* |
 | **Scoop** | Windows | `scoop install hogsync` *(coming soon)* |
 | **Arch AUR** | Linux | `yay -S hogsync-bin` *(coming soon)* |
@@ -36,14 +36,14 @@ Download the latest binary from [GitHub Releases](https://github.com/stephenbyrn
 - **macOS x64**: `hogsync-darwin-x64.zip`
 - **macOS ARM64**: `hogsync-darwin-arm64.zip`
 
-> **Note**: Windows binaries are not currently available in automated releases. Windows users can install via npm: `npm install -g hogsync`
+> **Note**: Windows binaries are not currently available in automated releases. Windows users can install via npm: `npm install -g hogsync-cli`
 
 ## Quick Start
 
 ### Initialize Configuration
 
 ```bash
-npx hogsync init
+npx hogsync-cli init
 ```
 
 This creates a `hogsync.config.js` file:
@@ -101,7 +101,7 @@ Create JSON files in your `feature-flags/` directory:
 ### Generate TypeScript
 
 ```bash
-hogsync generate
+npx hogsync-cli generate
 ```
 
 This generates type-safe constants:
@@ -132,7 +132,7 @@ export POSTHOG_PROJECT_ID="your-project-id"
 export POSTHOG_API_TOKEN="your-api-token"
 
 # Sync flags to PostHog
-hogsync sync
+npx hogsync-cli sync
 ```
 
 ## Framework Usage
@@ -288,25 +288,25 @@ Set these in your repository settings:
 
 ```bash
 # Initialize configuration
-hogsync init
+npx hogsync-cli init
 
 # Generate TypeScript from flags
-hogsync generate
+npx hogsync-cli generate
 
 # Sync flags to PostHog
-hogsync sync
+npx hogsync-cli sync
 
 # Validate flag definitions
-hogsync validate
+npx hogsync-cli validate
 
 # Watch for changes (coming soon)
-hogsync watch
+npx hogsync-cli watch
 
 # Show help
-hogsync --help
+npx hogsync-cli --help
 
 # Show version
-hogsync --version
+npx hogsync-cli --version
 ```
 
 ## Development Workflow
@@ -349,9 +349,9 @@ Add to your `package.json`:
 ```json
 {
   "scripts": {
-    "flags:generate": "hogsync generate",
-    "flags:sync": "hogsync sync",
-    "flags:validate": "hogsync validate",
+    "flags:generate": "npx hogsync-cli generate",
+    "flags:sync": "npx hogsync-cli sync",
+    "flags:validate": "npx hogsync-cli validate",
     "dev": "npm run flags:generate && next dev"
   }
 }
@@ -366,9 +366,9 @@ For automatic flag generation during development, set up your scripts to regener
   "scripts": {
     "dev": "bun run flags:generate && next dev --port 3001",
     "build": "bun run flags:generate && next build",
-    "flags:generate": "hogsync generate",
-    "flags:sync": "hogsync sync",
-    "flags:validate": "hogsync validate",
+    "flags:generate": "npx hogsync-cli generate",
+    "flags:sync": "npx hogsync-cli sync",
+    "flags:validate": "npx hogsync-cli validate",
     "start": "next start --port 3001",
     "lint": "next lint",
     "check-types": "tsc --noEmit",
@@ -386,7 +386,7 @@ Pre-commit hook to validate flags:
 ```bash
 #!/bin/sh
 # .git/hooks/pre-commit
-hogsync validate
+npx hogsync-cli validate
 ```
 
 ## Advanced Configuration
@@ -471,7 +471,7 @@ Remove flags after full rollout:
 1. Set flag to 100% rollout
 2. Remove conditional code
 3. Delete flag JSON file
-4. Run `hogsync generate`
+4. Run `npx hogsync-cli generate`
 
 ### 4. Testing
 
@@ -491,7 +491,7 @@ If you have existing PostHog feature flags:
 
 1. Export flags from PostHog
 2. Create JSON files matching the structure
-3. Run `hogsync generate`
+3. Run `npx hogsync-cli generate`
 4. Update your code to use the new hooks
 
 ## Troubleshooting

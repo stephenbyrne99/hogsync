@@ -90,11 +90,11 @@ async function main() {
     JSON.stringify(
       {
         ...publishPkg,
-        name: cliPkg.name + '-cli', // Create separate published package name
+        name: cliPkg.name, // Keep original package name
         version,
         optionalDependencies,
         bin: {
-          [cliPkg.name]: `./bin/${cliPkg.name}`,
+          hogsync: './bin/hogsync',
         },
         scripts: {
           postinstall: 'node ./postinstall.mjs',

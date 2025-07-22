@@ -7,10 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "generate:flags": "npx hogsync-cli generate"
+    "generate:flags": "npx hogsync generate"
   },
   "dependencies": {
-    "hogsync-cli": "file:../..",
+    "hogsync": "file:../..",
     "@hogsync/react": "file:../../packages/react",
     "next": "15.4.1",
     "posthog-js": "^1.0.0",

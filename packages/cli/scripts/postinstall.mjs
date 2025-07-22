@@ -70,28 +70,16 @@ function findBinary() {
 
 function main() {
   // Note: We run postinstall in all environments to ensure proper binary resolution
+  // However, we don't fail if platform packages are missing since the shell script
+  // will handle runtime resolution
 
   try {
     const binaryPath = findBinary();
-    const binScript = path.join(__dirname, 'bin', 'hogsync');
-
-    // Ensure bin directory exists
-    const binDir = path.dirname(binScript);
-    if (!fs.existsSync(binDir)) {
-      fs.mkdirSync(binDir, { recursive: true });
-    }
-
-    // Remove existing bin script if it exists
-    if (fs.existsSync(binScript)) {
-      fs.unlinkSync(binScript);
-    }
-
-    // Create symlink to the actual binary
-    fs.symlinkSync(binaryPath, binScript);
-    console.log(`hogsync binary symlinked: ${binScript} -> ${binaryPath}`);
+    console.log(`hogsync platform binary found: ${binaryPath}`);
   } catch (error) {
-    console.error('Failed to create hogsync binary symlink:', error.message);
-    process.exit(1);
+    // Don't fail - the shell script wrapper will handle runtime resolution
+    console.log('Platform-specific binary not found during postinstall, will resolve at runtime');
+    console.log(`Looked for: hogsync-${detectPlatformAndArch().platform}-${detectPlatformAndArch().arch}`);
   }
 }
 

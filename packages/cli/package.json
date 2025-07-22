@@ -2,7 +2,6 @@
   "name": "hogsync",
   "version": "0.0.1",
   "description": "Type-safe PostHog feature flags with automated sync",
-
   "main": "dist/src/index.js",
   "bin": {
     "hogsync": "./bin/hogsync"
@@ -12,11 +11,11 @@
     "build:clean": "rm -rf dist",
     "build:tsc": "tsc -p tsconfig.build.json",
     "build:cli": "bun build src/cli.ts --outdir dist --target node",
-    "build:binary": "bun build src/cli.ts --compile --outfile bin/hogsync",
     "publish:cross-platform": "bun run scripts/publish.ts",
     "publish:cross-platform:dry": "bun run scripts/publish.ts --dry",
     "publish:cross-platform:snapshot": "bun run scripts/publish.ts --snapshot",
-    "prepublishOnly": "bun run build && bun run build:binary",
+    "prepublishOnly": "bun run build",
+    "postinstall": "node scripts/postinstall.mjs",
     "generate:flags": "bun run scripts/generate-feature-flags.ts",
     "sync:flags": "bun run scripts/sync-feature-flags.js",
     "dev": "bun run --watch src/cli.ts",
@@ -43,6 +42,7 @@
     "dist/",
     "bin/",
     "templates/",
+    "postinstall.mjs",
     "action.yml",
     "README.md"
   ],
@@ -54,6 +54,13 @@
   },
   "types": "dist/src/index.d.ts",
   "dependencies": {},
+  "optionalDependencies": {
+    "hogsync-linux-arm64": "0.0.1",
+    "hogsync-linux-x64": "0.0.1",
+    "hogsync-darwin-x64": "0.0.1",
+    "hogsync-darwin-arm64": "0.0.1",
+    "hogsync-windows-x64": "0.0.1"
+  },
   "devDependencies": {
     "typescript": "^5.8.3"
   }

@@ -49,7 +49,12 @@ else
     done
     
     if [ -z "$resolved" ]; then
-        printf "It seems that your package manager failed to install the right version of the hogsync CLI for your platform. You can try manually installing the \"%s\" package\n" "$name" >&2
+        printf "Error: Could not find hogsync binary for your platform (%s-%s).\n" "$platform" "$arch" >&2
+        printf "\nTroubleshooting:\n" >&2
+        printf "1. Try reinstalling: npm install hogsync\n" >&2
+        printf "2. Or install the platform package directly: npm install %s\n" "$name" >&2
+        printf "3. Or set HOGSYNC_BIN_PATH to point to a hogsync binary\n" >&2
+        printf "4. For CI/CD, consider using the GitHub Action or downloading binaries directly\n" >&2
         exit 1
     fi
 fi

@@ -4,9 +4,7 @@ import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
 
 function detectPlatformAndArch() {
@@ -76,10 +74,12 @@ function main() {
   try {
     const binaryPath = findBinary();
     console.log(`hogsync platform binary found: ${binaryPath}`);
-  } catch (error) {
+  } catch (_error) {
     // Don't fail - the shell script wrapper will handle runtime resolution
     console.log('Platform-specific binary not found during postinstall, will resolve at runtime');
-    console.log(`Looked for: hogsync-${detectPlatformAndArch().platform}-${detectPlatformAndArch().arch}`);
+    console.log(
+      `Looked for: hogsync-${detectPlatformAndArch().platform}-${detectPlatformAndArch().arch}`
+    );
   }
 }
 

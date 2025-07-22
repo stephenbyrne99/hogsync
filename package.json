@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "build": "bun run build:cli && bun run build:react",
+    "build:cli": "cd packages/cli && bun run build",
     "build:react": "cd packages/react && bun run build",
     "publish:cross-platform": "bun run scripts/publish.ts",
     "publish:cross-platform:dry": "bun run scripts/publish.ts --dry",
